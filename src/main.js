@@ -170,7 +170,7 @@ const KNOWN_FLAGS = [
   { bg: '白', sc: '赤', shape: '十字',   country: '赤十字',        countryEn: 'Red Cross' },
   { bg: '赤', sc: '白', shape: '三日月', country: 'トルコ',        countryEn: 'Turkey' },
   { bg: '緑', sc: '白', shape: '三日月', country: 'パキスタン',     countryEn: 'Pakistan' },
-  { bg: '白', sc: '赤', shape: '三日月', country: '赤新月',        countryEn: 'Red Crescent' },
+  { bg: '白', sc: '赤', shape: '三日月', country: 'チュニジア',     countryEn: 'Tunisia' },
 ];
 
 
