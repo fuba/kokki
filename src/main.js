@@ -17,7 +17,6 @@ const SHAPES = [
   { type: 1, name: '星',   size: 0.45 },
   { type: 2, name: '三日月', size: 0.40 },
   { type: 3, name: '十字', size: 0.42 },
-  { type: 4, name: '三角', size: 0.50 },
 ];
 
 const BG_COLORS = [

@@ -14,15 +14,29 @@ function sdBox(px, py, bx, by) {
 }
 
 function sdStar5(px, py, r) {
+  // Straight-edge 5-pointed star (American flag style)
   const innerR = r * 0.38;
-  let angle = Math.atan2(py, px) + Math.PI / 2;
-  const segAngle = (2 * Math.PI) / 5;
-  const halfSeg = segAngle * 0.5;
-  let a = ((angle % segAngle) + segAngle) % segAngle;
-  if (a > halfSeg) a = segAngle - a;
-  const t = a / halfSeg;
-  const targetR = r + (innerR - r) * t;
-  return Math.sqrt(px * px + py * py) - targetR;
+  const hs = Math.PI / 5.0;
+  const angle = Math.atan2(px, py);
+  // GLSL-style mod: x - y * floor(x / y)
+  const raw = angle + hs;
+  const period = hs * 2.0;
+  const a = Math.abs((raw - period * Math.floor(raw / period)) - hs);
+  const len = Math.sqrt(px * px + py * py);
+  const qx = len * Math.sin(a);
+  const qy = len * Math.cos(a);
+  const v1x = innerR * Math.sin(hs);
+  const v1y = innerR * Math.cos(hs);
+  const ex = v1x;
+  const ey = v1y - r;
+  const dx = qx;
+  const dy = qy - r;
+  const t = Math.max(0, Math.min(1, (dx * ex + dy * ey) / (ex * ex + ey * ey)));
+  const distX = dx - ex * t;
+  const distY = dy - ey * t;
+  const dist = Math.sqrt(distX * distX + distY * distY);
+  const s = ex * dy - ey * dx;
+  return s < 0 ? -dist : dist;
 }
 
 function sdCrescent(px, py, r) {
@@ -86,7 +100,6 @@ export function isInsideShape(px, py, shapeType, shapeSize) {
     case 1: d = sdStar5(px, py, shapeSize); break;
     case 2: d = sdCrescent(px, py, shapeSize); break;
     case 3: d = sdCross(px, py, shapeSize); break;
-    case 4: d = sdTriangle(px, py, shapeSize); break;
     case 5: d = sdDiamond(px, py, shapeSize); break;
     case 6: d = sdHexagon(px, py, shapeSize); break;
     case 7: d = sdRing(px, py, shapeSize); break;

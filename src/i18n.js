@@ -34,7 +34,7 @@ const ja = {
   shareTextJapan: '日本国旗を生成したら損壊されました。皆さんさようなら',
   infoFormat: (shape, bg, sc) => `${shape}｜地：${bg}｜紋：${sc}`,
   webglError: 'WebGL非対応',
-  shapes: { '円': '円', '星': '星', '三日月': '三日月', '十字': '十字', '三角': '三角' },
+  shapes: { '円': '円', '星': '星', '三日月': '三日月', '十字': '十字' },
   colors: { '白': '白', '赤': '赤', '青': '青', '緑': '緑', '黄': '黄', '黒': '黒' },
   effects: { explosion: '爆発', burn: '燃焼' },
 };
@@ -76,7 +76,7 @@ const en = {
   shareTextJapan: "I generated the Japanese flag and it got destroyed. Goodbye everyone.",
   infoFormat: (shape, bg, sc) => `${shape} | bg: ${bg} | emblem: ${sc}`,
   webglError: 'WebGL not supported',
-  shapes: { '円': 'Circle', '星': 'Star', '三日月': 'Crescent', '十字': 'Cross', '三角': 'Triangle' },
+  shapes: { '円': 'Circle', '星': 'Star', '三日月': 'Crescent', '十字': 'Cross' },
   colors: { '白': 'White', '赤': 'Red', '青': 'Blue', '緑': 'Green', '黄': 'Yellow', '黒': 'Black' },
   effects: { explosion: 'Explosion', burn: 'Combustion' },
 };

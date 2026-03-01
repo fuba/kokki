@@ -290,15 +290,25 @@ float sdTriangle(vec2 p, float r) {
 }
 
 float sdStar5(vec2 p, float r) {
+    // Simple 5-pointed star with straight polygon edges
     float innerR = r * 0.38;
-    float angle = atan(p.y, p.x) + 1.5707963;
-    float segAngle = 6.2831853 / 5.0;
-    float halfSeg = segAngle * 0.5;
-    float a = mod(angle + 6.2831853, segAngle);
-    if (a > halfSeg) a = segAngle - a;
-    float t = a / halfSeg;
-    float targetR = mix(r, innerR, t);
-    return length(p) - targetR;
+    float hs = 3.14159265 / 5.0;
+
+    float angle = atan(p.x, p.y);
+    float a = abs(mod(angle + hs, hs * 2.0) - hs);
+
+    float len = length(p);
+    vec2 q = vec2(len * sin(a), len * cos(a));
+
+    // Edge from outer tip (0, r) to inner valley
+    vec2 v1 = vec2(innerR * sin(hs), innerR * cos(hs));
+    vec2 e = vec2(v1.x, v1.y - r);
+    vec2 d = vec2(q.x, q.y - r);
+
+    float t = clamp(dot(d, e) / dot(e, e), 0.0, 1.0);
+    float dist = length(d - e * t);
+    float s = e.x * d.y - e.y * d.x;
+    return s < 0.0 ? -dist : dist;
 }
 
 float sdHexagon(vec2 p, float r) {
@@ -337,7 +347,6 @@ float getShape(vec2 p, float shapeType, float size) {
     if (shapeType < 1.5) return sdStar5(p, size);
     if (shapeType < 2.5) return sdCrescent(p, size);
     if (shapeType < 3.5) return sdCross(p, size);
-    if (shapeType < 4.5) return sdTriangle(p, size);
     if (shapeType < 5.5) return sdDiamond(p, size);
     if (shapeType < 6.5) return sdHexagon(p, size);
     return sdRing(p, size);
