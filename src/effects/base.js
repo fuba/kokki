@@ -1,9 +1,10 @@
-// Particle explosion system rendered with WebGL
+// Base class for particle-based destruction effects
 
-import { createProgram, getUniformLocations } from './webgl-utils.js';
-import { isInsideShape } from './shapes.js';
+import { createProgram } from '../webgl-utils.js';
+import { isInsideShape } from '../shapes.js';
 
-const VS = `
+// Shared particle shaders
+const PARTICLE_VS = `
 attribute vec2 a_position;
 attribute vec3 a_color;
 attribute float a_life;
@@ -20,7 +21,7 @@ void main() {
 }
 `;
 
-const FS = `
+const PARTICLE_FS = `
 precision highp float;
 
 varying vec3 v_color;
@@ -40,15 +41,13 @@ void main() {
 
 const PARTICLE_COUNT = 3000;
 // x, y, vx, vy, r, g, b, life, size
-const PARTICLE_FLOATS = 9;
-const GRAVITY = -1.2;
-const LIFE_DECAY = 0.6;
+const FLOATS_PER_PARTICLE = 9;
+const FLAG_ASPECT = 1.5;
 
-export class ParticleSystem {
+export class ParticleEffect {
   constructor(gl) {
     this.gl = gl;
-    this.program = createProgram(gl, VS, FS);
-    this.uniforms = getUniformLocations(gl, this.program, []);
+    this.program = createProgram(gl, PARTICLE_VS, PARTICLE_FS);
 
     this.aPosition = gl.getAttribLocation(this.program, 'a_position');
     this.aColor = gl.getAttribLocation(this.program, 'a_color');
@@ -57,83 +56,55 @@ export class ParticleSystem {
 
     this.buffer = gl.createBuffer();
 
-    this.particles = new Float32Array(PARTICLE_COUNT * PARTICLE_FLOATS);
-    // GPU data: x, y, r, g, b, life, size
+    this.particles = new Float32Array(PARTICLE_COUNT * FLOATS_PER_PARTICLE);
     this.gpuData = new Float32Array(PARTICLE_COUNT * 7);
     this.alive = false;
+    this.particleCount = PARTICLE_COUNT;
+    this.gridCols = 0;
+    this.gridRows = 0;
   }
 
-  emit(flag, canvasWidth, canvasHeight) {
-    const aspect = canvasWidth / canvasHeight;
-    const gridCols = Math.ceil(Math.sqrt(PARTICLE_COUNT * aspect));
-    const gridRows = Math.ceil(PARTICLE_COUNT / gridCols);
+  // Place particles on the flag surface and project to screen NDC
+  // projectFn(u, v) => [ndcX, ndcY]
+  initGrid(flag, projectFn) {
+    this.gridCols = Math.ceil(Math.sqrt(this.particleCount * FLAG_ASPECT));
+    this.gridRows = Math.ceil(this.particleCount / this.gridCols);
 
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const col = i % gridCols;
-      const row = Math.floor(i / gridCols);
+    for (let i = 0; i < this.particleCount; i++) {
+      const col = i % this.gridCols;
+      const row = Math.floor(i / this.gridCols);
 
-      // Map to NDC (-1 to 1)
-      const x = (col / (gridCols - 1)) * 2 - 1;
-      const y = (row / (gridRows - 1)) * 2 - 1;
+      const u = col / (this.gridCols - 1);
+      const v = row / (this.gridRows - 1);
 
-      // Determine color from flag analytically
-      const px = x * aspect;
-      const py = y;
+      // Project to screen NDC via 3D flag position
+      const [ndcX, ndcY] = projectFn(u, v);
+
+      // Determine color from flag SDF
+      const px = (u * 2 - 1) * FLAG_ASPECT;
+      const py = v * 2 - 1;
       const inside = isInsideShape(px, py, flag.shapeType, flag.shapeSize);
       const color = inside ? flag.shapeColor : flag.bgColor;
 
-      // Velocity: radial outward + random perturbation
-      const speed = 1.5 + Math.random() * 2.5;
-      const angle = Math.atan2(y, x) + (Math.random() - 0.5) * 0.8;
-      const vx = Math.cos(angle) * speed;
-      const vy = Math.sin(angle) * speed;
-
-      const idx = i * PARTICLE_FLOATS;
-      this.particles[idx + 0] = x;
-      this.particles[idx + 1] = y;
-      this.particles[idx + 2] = vx;
-      this.particles[idx + 3] = vy;
+      const idx = i * FLOATS_PER_PARTICLE;
+      this.particles[idx + 0] = ndcX;
+      this.particles[idx + 1] = ndcY;
       this.particles[idx + 4] = color[0];
       this.particles[idx + 5] = color[1];
       this.particles[idx + 6] = color[2];
       this.particles[idx + 7] = 1.0;
-      this.particles[idx + 8] = 4.0 + Math.random() * 6.0; // fixed size per particle
     }
-
-    this.alive = true;
   }
 
-  update(dt) {
-    if (!this.alive) return;
+  // Get original UV for particle index (for subclass use)
+  getUV(i) {
+    const col = i % this.gridCols;
+    const row = Math.floor(i / this.gridCols);
+    return [col / (this.gridCols - 1), row / (this.gridRows - 1)];
+  }
 
-    let anyAlive = false;
-
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const idx = i * PARTICLE_FLOATS;
-      let life = this.particles[idx + 7];
-      if (life <= 0) continue;
-
-      life -= LIFE_DECAY * dt;
-      if (life <= 0) {
-        life = 0;
-        this.particles[idx + 7] = 0;
-        continue;
-      }
-
-      // Apply gravity
-      this.particles[idx + 3] += GRAVITY * dt;
-
-      // Update position
-      this.particles[idx + 0] += this.particles[idx + 2] * dt;
-      this.particles[idx + 1] += this.particles[idx + 3] * dt;
-      this.particles[idx + 7] = life;
-
-      anyAlive = true;
-    }
-
-    if (!anyAlive) {
-      this.alive = false;
-    }
+  emit(flag, projectFn) {
+    throw new Error('emit() not implemented');
   }
 
   isDead() {
@@ -145,9 +116,8 @@ export class ParticleSystem {
 
     const { gl } = this;
 
-    // Pack GPU data: x, y, r, g, b, life, size
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      const si = i * PARTICLE_FLOATS;
+    for (let i = 0; i < this.particleCount; i++) {
+      const si = i * FLOATS_PER_PARTICLE;
       const di = i * 7;
       this.gpuData[di + 0] = this.particles[si + 0];
       this.gpuData[di + 1] = this.particles[si + 1];
@@ -179,8 +149,10 @@ export class ParticleSystem {
     gl.enableVertexAttribArray(this.aSize);
     gl.vertexAttribPointer(this.aSize, 1, gl.FLOAT, false, stride, 24);
 
-    gl.drawArrays(gl.POINTS, 0, PARTICLE_COUNT);
+    gl.drawArrays(gl.POINTS, 0, this.particleCount);
 
     gl.disable(gl.BLEND);
   }
 }
+
+export { FLOATS_PER_PARTICLE, PARTICLE_COUNT };

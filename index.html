@@ -1,9 +1,18 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>kokki - ランダム国旗ジェネレーター</title>
+    <meta name="description" content="ランダムな国旗を生成しよう">
+    <meta property="og:title" content="国旗生成ゲーム">
+    <meta property="og:description" content="ランダムな国旗を生成しよう">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="国旗生成ゲーム">
+    <meta name="twitter:description" content="ランダムな国旗を生成しよう">
+    <meta name="twitter:image" content="og-image.png">
+    <title>国旗生成ゲーム</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -12,67 +21,247 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            background: #1a1a2e;
-            font-family: 'Segoe UI', 'Hiragino Sans', sans-serif;
-            color: #eee;
-            overflow: hidden;
+            background: #f5f0e8;
+            font-family: "游明朝", "Yu Mincho", "Hiragino Mincho ProN", "MS PMincho", serif;
+            color: #1a1a1a;
+        }
+
+        /* Header bar */
+        #header {
+            width: 100%;
+            border-bottom: 2px solid #1a1a1a;
+            padding: 8px 0 6px;
+            text-align: center;
+            background: #f5f0e8;
+            margin-bottom: 24px;
+        }
+        #header-inner {
+            max-width: 700px;
+            margin: 0 auto;
+            border-bottom: 1px solid #1a1a1a;
+            padding-bottom: 6px;
         }
         h1 {
-            margin-bottom: 20px;
-            font-size: 2.5em;
-            letter-spacing: 0.15em;
-            text-shadow: 0 0 20px rgba(255,255,255,0.1);
+            font-size: 2.2em;
+            font-weight: 400;
+            letter-spacing: 0.5em;
+            margin: 4px 0 0;
+        }
+
+        /* Main area */
+        #main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #section-title {
+            font-size: 0.85em;
+            letter-spacing: 0.2em;
+            color: #555;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #999;
+            padding-bottom: 4px;
         }
         #canvas-container {
             position: relative;
-            border: 3px solid #333;
-            box-shadow: 0 0 40px rgba(0,0,0,0.6);
-            border-radius: 4px;
+            border: 1px solid #1a1a1a;
+            outline: 1px solid #1a1a1a;
+            outline-offset: 3px;
         }
         canvas {
             display: block;
         }
+
+        /* Info */
+        #info {
+            margin-top: 10px;
+            font-size: 0.8em;
+            color: #777;
+            letter-spacing: 0.1em;
+            font-family: monospace;
+        }
+
+        /* Button */
         #explode-btn {
-            margin-top: 28px;
-            padding: 18px 56px;
-            font-size: 1.4em;
-            font-weight: bold;
-            letter-spacing: 0.2em;
-            border: none;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: white;
+            margin-top: 20px;
+            padding: 10px 40px;
+            font-size: 1.1em;
+            font-weight: 400;
+            font-family: "游明朝", "Yu Mincho", "Hiragino Mincho ProN", "MS PMincho", serif;
+            letter-spacing: 0.4em;
+            border: 1px solid #1a1a1a;
+            background: #fff;
+            color: #1a1a1a;
             cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
+            transition: background 0.15s;
             user-select: none;
         }
         #explode-btn:hover:not(:disabled) {
-            transform: scale(1.08);
-            box-shadow: 0 0 30px rgba(231, 76, 60, 0.6);
+            background: #1a1a1a;
+            color: #f5f0e8;
         }
         #explode-btn:active:not(:disabled) {
-            transform: scale(0.96);
+            background: #333;
+            color: #f5f0e8;
         }
         #explode-btn:disabled {
-            opacity: 0.4;
+            opacity: 0.35;
             cursor: not-allowed;
         }
-        #info {
-            margin-top: 14px;
-            font-size: 1em;
-            color: #888;
-            letter-spacing: 0.05em;
+
+        /* Result dialog */
+        #result-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        #result-overlay.visible {
+            display: flex;
+        }
+        #result-dialog {
+            background: #f5f0e8;
+            border: 2px solid #1a1a1a;
+            padding: 0;
+            max-width: 420px;
+            width: 90%;
+        }
+        #result-header {
+            background: #1a1a1a;
+            color: #f5f0e8;
+            text-align: center;
+            padding: 8px 16px;
+            font-size: 0.85em;
+            letter-spacing: 0.3em;
+        }
+        #result-body {
+            padding: 20px 24px;
+        }
+        #result-flag {
+            display: block;
+            width: 90%;
+            margin: 0 auto 16px;
+            border: 1px solid #1a1a1a;
+        }
+        #result-title {
+            text-align: center;
+            font-size: 1.3em;
+            letter-spacing: 0.2em;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #999;
+        }
+        #result-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        #result-actions button {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            font-family: "游明朝", "Yu Mincho", "Hiragino Mincho ProN", "MS PMincho", serif;
+            font-size: 0.85em;
+            letter-spacing: 0.1em;
+            border: 1px solid #1a1a1a;
+            background: #fff;
+            color: #1a1a1a;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        #result-actions button:hover {
+            background: #1a1a1a;
+            color: #f5f0e8;
+        }
+        #result-actions button svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+        #result-warning {
+            display: none;
+            margin-top: 12px;
+            padding: 12px;
+            border: 1px solid #8b0000;
+            background: #fff8f8;
+            font-size: 0.85em;
+            line-height: 1.8;
+        }
+        #result-warning-title {
+            color: #8b0000;
+            font-weight: bold;
+            letter-spacing: 0.15em;
+            margin-bottom: 4px;
+        }
+        #result-close-btn {
+            display: block;
+            margin: 0 auto;
+            padding: 8px 32px;
+            font-family: "游明朝", "Yu Mincho", "Hiragino Mincho ProN", "MS PMincho", serif;
+            font-size: 0.95em;
+            letter-spacing: 0.3em;
+            border: 1px solid #1a1a1a;
+            background: #fff;
+            color: #1a1a1a;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        #result-close-btn:hover {
+            background: #1a1a1a;
+            color: #f5f0e8;
+        }
+
+        /* Footer */
+        #footer {
+            margin-top: 30px;
+            font-size: 0.65em;
+            color: #999;
+            letter-spacing: 0.15em;
+            border-top: 1px solid #ccc;
+            padding-top: 8px;
         }
     </style>
 </head>
 <body>
-    <h1>kokki</h1>
-    <div id="canvas-container">
-        <canvas id="canvas" width="640" height="420"></canvas>
+    <div id="header">
+        <div id="header-inner">
+            <h1 id="heading">国旗生成ゲーム</h1>
+        </div>
     </div>
-    <button id="explode-btn">EXPLODE!</button>
-    <p id="info"></p>
+    <div id="main">
+        <div id="section-title">旗章プレビュー</div>
+        <div id="canvas-container">
+            <canvas id="canvas" width="630" height="420"></canvas>
+        </div>
+        <p id="info"></p>
+        <button id="explode-btn">生成</button>
+    </div>
+    <!-- Result dialog -->
+    <div id="result-overlay">
+        <div id="result-dialog">
+            <div id="result-header">損壊結果報告書</div>
+            <div id="result-body">
+                <img id="result-flag" alt="損壊された旗章">
+                <div id="result-title"></div>
+                <div id="result-actions">
+                    <button id="download-btn"><svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18v12.17l3.59-3.58L17 12l-5 5-5-5 1.41-1.41L12 14.17V2z"/></svg><span id="download-label">保存</span></button>
+                    <button id="share-x-btn"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span id="share-x-label">X</span></button>
+                </div>
+                <div id="result-warning">
+                    <div id="result-warning-title"></div>
+                    <div id="result-warning-body"></div>
+                </div>
+                <button id="result-close-btn">もう一度生成</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer">本ゲームで生成される旗章は架空のものであり、既存の国旗との一致は偶然によるものです</div>
     <script type="module" src="src/main.js"></script>
 </body>
 </html>
