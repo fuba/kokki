@@ -205,6 +205,10 @@ function showResultDialog(flag) {
 
   resultFlagImg.src = capturedFlagImage;
 
+  // Hide share button for non-Japan real country flags (to avoid diplomatic issues)
+  const isForeignMatch = match && !match.japan;
+  shareXBtn.style.display = isForeignMatch ? 'none' : '';
+
   if (match) {
     resultTitle.textContent = match.japan ? t.resultJapan : t.resultCountry(countryName);
     resultWarning.style.display = 'block';
