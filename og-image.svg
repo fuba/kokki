@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#f5f0e8"/>
+  <!-- 5 small flags in a row -->
+  <g transform="translate(120,140)">
+    <rect width="160" height="107" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+    <circle cx="80" cy="53" r="32" fill="#cc0000"/>
+  </g>
+  <g transform="translate(320,140)">
+    <rect width="160" height="107" fill="#006" stroke="#1a1a1a" stroke-width="2"/>
+    <polygon points="80,20 90,50 120,50 95,68 105,98 80,80 55,98 65,68 40,50 70,50" fill="#fc0"/>
+  </g>
+  <g transform="translate(520,140)">
+    <rect width="160" height="107" fill="#c00" stroke="#1a1a1a" stroke-width="2"/>
+    <rect x="60" y="10" width="40" height="87" fill="#fff"/>
+    <rect x="20" y="33" width="120" height="40" fill="#fff"/>
+  </g>
+  <g transform="translate(720,140)">
+    <rect width="160" height="107" fill="#060" stroke="#1a1a1a" stroke-width="2"/>
+    <circle cx="85" cy="53" r="30" fill="#fff"/>
+    <circle cx="95" cy="53" r="25" fill="#060"/>
+  </g>
+  <g transform="translate(920,140)">
+    <rect width="160" height="107" fill="#fc0" stroke="#1a1a1a" stroke-width="2"/>
+    <polygon points="80,20 90,50 120,50 95,68 105,98 80,80 55,98 65,68 40,50 70,50" fill="#000"/>
+  </g>
+  <!-- Question mark -->
+  <text x="600" y="380" text-anchor="middle" font-family="serif" font-size="100" fill="#1a1a1a" opacity="0.3">?</text>
+  <!-- Decorative lines -->
+  <line x1="100" y1="440" x2="1100" y2="440" stroke="#1a1a1a" stroke-width="1" opacity="0.3"/>
+  <line x1="100" y1="445" x2="1100" y2="445" stroke="#1a1a1a" stroke-width="2" opacity="0.3"/>
+</svg>

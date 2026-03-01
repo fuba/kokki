@@ -1,9 +1,18 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>国旗</title>
+    <meta name="description" content="ランダムな国旗を生成しよう">
+    <meta property="og:title" content="国旗生成ゲーム">
+    <meta property="og:description" content="ランダムな国旗を生成しよう">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="国旗生成ゲーム">
+    <meta name="twitter:description" content="ランダムな国旗を生成しよう">
+    <meta name="twitter:image" content="og-image.png">
+    <title>国旗生成ゲーム</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -31,11 +40,6 @@
             margin: 0 auto;
             border-bottom: 1px solid #1a1a1a;
             padding-bottom: 6px;
-        }
-        #header-label {
-            font-size: 0.75em;
-            letter-spacing: 0.3em;
-            color: #666;
         }
         h1 {
             font-size: 2.2em;
@@ -138,7 +142,7 @@
         }
         #result-flag {
             display: block;
-            width: 60%;
+            width: 90%;
             margin: 0 auto 16px;
             border: 1px solid #1a1a1a;
         }
@@ -150,25 +154,34 @@
             padding-bottom: 8px;
             border-bottom: 1px solid #999;
         }
-        #result-details {
-            font-size: 0.9em;
-            line-height: 2;
+        #result-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
             margin-bottom: 16px;
         }
-        #result-details dt {
-            display: inline;
-            color: #666;
+        #result-actions button {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            font-family: "游明朝", "Yu Mincho", "Hiragino Mincho ProN", "MS PMincho", serif;
+            font-size: 0.85em;
+            letter-spacing: 0.1em;
+            border: 1px solid #1a1a1a;
+            background: #fff;
+            color: #1a1a1a;
+            cursor: pointer;
+            transition: background 0.15s;
         }
-        #result-details dt::after {
-            content: "：";
+        #result-actions button:hover {
+            background: #1a1a1a;
+            color: #f5f0e8;
         }
-        #result-details dd {
-            display: inline;
-            margin: 0;
-        }
-        #result-details dd::after {
-            content: "";
-            display: block;
+        #result-actions button svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
         }
         #result-warning {
             display: none;
@@ -217,17 +230,16 @@
 <body>
     <div id="header">
         <div id="header-inner">
-            <div id="header-label">無作為生成</div>
-            <h1>国旗</h1>
+            <h1 id="heading">国旗生成ゲーム</h1>
         </div>
     </div>
     <div id="main">
-        <div id="section-title">第一面　旗章図</div>
+        <div id="section-title">旗章プレビュー</div>
         <div id="canvas-container">
             <canvas id="canvas" width="630" height="420"></canvas>
         </div>
         <p id="info"></p>
-        <button id="explode-btn">損壊</button>
+        <button id="explode-btn">生成</button>
     </div>
     <!-- Result dialog -->
     <div id="result-overlay">
@@ -236,21 +248,20 @@
             <div id="result-body">
                 <img id="result-flag" alt="損壊された旗章">
                 <div id="result-title"></div>
-                <dl id="result-details">
-                    <dt>図形</dt><dd id="rd-shape"></dd>
-                    <dt>地色</dt><dd id="rd-bg"></dd>
-                    <dt>紋色</dt><dd id="rd-sc"></dd>
-                </dl>
+                <div id="result-actions">
+                    <button id="download-btn"><svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18v12.17l3.59-3.58L17 12l-5 5-5-5 1.41-1.41L12 14.17V2z"/></svg><span id="download-label">保存</span></button>
+                    <button id="share-x-btn"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span id="share-x-label">X</span></button>
+                </div>
                 <div id="result-warning">
                     <div id="result-warning-title"></div>
                     <div id="result-warning-body"></div>
                 </div>
-                <button id="result-close-btn">確認</button>
+                <button id="result-close-btn">もう一度生成</button>
             </div>
         </div>
     </div>
 
-    <div id="footer">本紙は無作為に生成された旗章であり、既存の国旗との一致は偶然によるものである</div>
+    <div id="footer">本ゲームで生成される旗章は架空のものであり、既存の国旗との一致は偶然によるものです</div>
     <script type="module" src="src/main.js"></script>
 </body>
 </html>
