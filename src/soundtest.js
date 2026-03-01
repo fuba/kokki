@@ -109,17 +109,17 @@ function buildOverlay() {
 .st-badge.pd  { background: #1a3a1a; color: #6b6; }
 .st-badge.og  { background: #3a2a0a; color: #ba6; }
 .st-btn {
-  width: 34px; height: 34px; flex-shrink: 0;
+  width: 44px; height: 44px; flex-shrink: 0;
   background: none; border: 1px solid #555; color: #ddd;
-  font-size: 1rem; cursor: pointer;
+  font-size: 1.1rem; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: border-color 0.15s;
 }
 .st-btn:hover { border-color: #aaa; }
 .st-close {
-  display: block; margin: 16px auto 0; padding: 8px 24px;
+  display: block; margin: 16px auto 0; padding: 10px 28px;
   background: #2a2a2a; border: 1px solid #555; color: #ddd;
-  font-family: inherit; font-size: 0.85rem; cursor: pointer;
+  font-family: inherit; font-size: 0.9rem; cursor: pointer;
 }
 .st-close:hover { background: #3a3a3a; }
 `;

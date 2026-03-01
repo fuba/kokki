@@ -68,9 +68,13 @@
             border: 1px solid #1a1a1a;
             outline: 1px solid #1a1a1a;
             outline-offset: 3px;
+            max-width: 630px;
+            width: 100%;
         }
         canvas {
             display: block;
+            width: 100%;
+            height: auto;
         }
 
         /* Info */
@@ -225,6 +229,50 @@
             letter-spacing: 0.15em;
             border-top: 1px solid #ccc;
             padding-top: 8px;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 680px) {
+            h1 {
+                font-size: 1.6em;
+                letter-spacing: 0.3em;
+            }
+            #header {
+                margin-bottom: 16px;
+            }
+            #header-inner {
+                margin: 0 12px;
+            }
+            #main {
+                width: 100%;
+                padding: 0 16px;
+            }
+            #section-title {
+                font-size: 0.75em;
+            }
+            #canvas-container {
+                outline-offset: 2px;
+            }
+            #explode-btn {
+                padding: 14px 40px;
+                font-size: 1.05em;
+            }
+            #result-body {
+                padding: 16px;
+            }
+            #result-title {
+                font-size: 1.1em;
+            }
+            #result-warning {
+                font-size: 0.78em;
+                line-height: 1.7;
+            }
+            #footer {
+                margin-top: 20px;
+                padding: 8px 16px;
+                text-align: center;
+                line-height: 1.6;
+            }
         }
     </style>
 </head>
