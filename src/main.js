@@ -102,9 +102,10 @@ let capturedAnimURL = null;
 
 // Roulette state
 let spinTimer = 0;
-let spinInterval = 0.03;
+let spinInterval = 0.08;
 let spinElapsed = 0;
 let spinDuration = 0;
+let spinFadeAlpha = 1.0; // crossfade alpha for epilepsy prevention
 const SPIN_MIN_DURATION = 1.5;
 const SPIN_MAX_DURATION = 2.5;
 const SETTLE_SLOW_START = 0.7;
@@ -225,7 +226,8 @@ function hideResultDialog() {
   btn.disabled = true;
   spinTimer = 0;
   spinElapsed = 0;
-  spinInterval = 0.03;
+  spinInterval = 0.08;
+  spinFadeAlpha = 1.0;
   spinDuration = SPIN_MIN_DURATION + Math.random() * (SPIN_MAX_DURATION - SPIN_MIN_DURATION);
 }
 
@@ -267,7 +269,8 @@ function startSpin() {
   btn.disabled = true;
   spinTimer = 0;
   spinElapsed = 0;
-  spinInterval = 0.03;
+  spinInterval = 0.08;
+  spinFadeAlpha = 1.0;
   spinDuration = SPIN_MIN_DURATION + Math.random() * (SPIN_MAX_DURATION - SPIN_MIN_DURATION);
 }
 
@@ -322,16 +325,20 @@ function render(now) {
     const progress = spinElapsed / spinDuration;
     if (progress > SETTLE_SLOW_START) {
       const slowFactor = (progress - SETTLE_SLOW_START) / (1.0 - SETTLE_SLOW_START);
-      spinInterval = 0.03 + slowFactor * 0.25;
+      spinInterval = 0.08 + slowFactor * 0.35;
     }
 
     if (spinTimer >= spinInterval) {
       spinTimer = 0;
       currentFlag = generateFlag();
       showFlagInfo(currentFlag);
+      spinFadeAlpha = 0.3; // crossfade: start dim on flag switch
     }
 
-    flagRenderer.renderFlag(currentFlag, 1.0);
+    // Recover crossfade alpha toward 1.0
+    spinFadeAlpha = Math.min(1.0, spinFadeAlpha + dt * 8);
+
+    flagRenderer.renderFlag(currentFlag, spinFadeAlpha);
 
     if (spinElapsed >= spinDuration) {
       state = 'showing';

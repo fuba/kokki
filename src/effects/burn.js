@@ -39,7 +39,7 @@ export class BurnEffect extends ParticleEffect {
       const g = this.particles[idx + 5];
       const b = this.particles[idx + 6];
       this.particles[idx + 4] = Math.min(1.0, r * 0.4 + 0.6);
-      this.particles[idx + 5] = Math.min(1.0, g * 0.3 + Math.random() * 0.4);
+      this.particles[idx + 5] = Math.min(1.0, g * 0.3 + Math.random() * 0.15);
       this.particles[idx + 6] = b * 0.1;
 
       this.particles[idx + 8] = 5.0 + Math.random() * 5.0;

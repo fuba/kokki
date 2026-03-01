@@ -83,20 +83,20 @@ function getSkyColors() {
     // Sunrise
     const t = (h - 6) / 2;
     return {
-      horizon: lerpC([0.9, 0.5, 0.3], [0.75, 0.85, 0.95], t),
-      zenith: lerpC([0.2, 0.15, 0.35], [0.3, 0.5, 0.85], t),
-      cloudBright: 0.7 + t * 0.3,
+      horizon: lerpC([0.9, 0.5, 0.3], [0.70, 0.82, 0.95], t),
+      zenith: lerpC([0.2, 0.15, 0.35], [0.22, 0.42, 0.85], t),
+      cloudBright: 0.65 + t * 0.27,
     };
   } else if (h >= 8 && h < 16) {
-    // Daytime
-    return { horizon: [0.75, 0.88, 1.0], zenith: [0.25, 0.45, 0.9], cloudBright: 1.0 };
+    // Daytime (slightly dimmed for eye comfort)
+    return { horizon: [0.70, 0.82, 0.95], zenith: [0.22, 0.42, 0.85], cloudBright: 0.92 };
   } else if (h >= 16 && h < 18) {
     // Sunset approach
     const t = (h - 16) / 2;
     return {
-      horizon: lerpC([0.75, 0.85, 0.95], [0.95, 0.55, 0.25], t),
-      zenith: lerpC([0.25, 0.45, 0.9], [0.3, 0.3, 0.6], t),
-      cloudBright: 1.0 - t * 0.2,
+      horizon: lerpC([0.70, 0.82, 0.95], [0.95, 0.55, 0.25], t),
+      zenith: lerpC([0.22, 0.42, 0.85], [0.3, 0.3, 0.6], t),
+      cloudBright: 0.92 - t * 0.12,
     };
   } else if (h >= 18 && h < 20) {
     // Sunset / twilight
