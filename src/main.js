@@ -101,6 +101,11 @@ const ANIM_FRAME_INTERVAL = 1 / ANIM_FPS;
 let animFrames = [];
 let animFrameTimer = 0;
 let capturedAnimURL = null;
+let isWaveCapture = false;
+
+// Wave capture state (for foreign flags — no destruction, just waving)
+const WAVE_CAPTURE_DURATION = 2.0;
+let waveCaptureTimer = 0;
 
 // Read RGBA pixels from the WebGL canvas (top-to-bottom row order)
 function capturePixels() {
@@ -222,9 +227,7 @@ function showResultDialog(flag) {
 
   resultFlagImg.src = capturedFlagImage;
 
-  // Hide share button for non-Japan real country flags (to avoid diplomatic issues)
-  const isForeignMatch = match && !match.japan && !isAsahi;
-  shareXBtn.style.display = isForeignMatch ? 'none' : '';
+  shareXBtn.style.display = '';
 
   if (isAsahi) {
     resultTitle.textContent = t.resultAsahi;
@@ -272,7 +275,9 @@ downloadBtn.addEventListener('click', () => {
   if (!url) return;
   const a = document.createElement('a');
   a.href = url;
-  a.download = capturedAnimURL ? 'destroyed-flag.gif' : 'destroyed-flag.png';
+  a.download = capturedAnimURL
+    ? (isWaveCapture ? 'waving-flag.gif' : 'destroyed-flag.gif')
+    : 'destroyed-flag.png';
   a.click();
 });
 
@@ -440,22 +445,23 @@ function render(now) {
       stopGunkan();
 
       if (showingMatch && !showingMatch.japan && !currentFlag.asahi) {
-        // Foreign real flag: no destruction, start next spin
+        // Foreign real flag: no destruction, capture waving animation then show report
         showingMatch = null;
-        currentFlag = generateFlag();
-        showFlagInfo(currentFlag);
-        state = 'spinning';
-        btn.disabled = true;
-        spinTimer = 0;
-        spinElapsed = 0;
-        spinInterval = 0.08;
-        spinFadeAlpha = 1.0;
-        spinDuration = SPIN_MIN_DURATION + Math.random() * (SPIN_MAX_DURATION - SPIN_MIN_DURATION);
+        capturedFlagImage = canvas.toDataURL('image/png');
+        explodedFlag = currentFlag;
+        isWaveCapture = true;
+
+        if (capturedAnimURL) { URL.revokeObjectURL(capturedAnimURL); capturedAnimURL = null; }
+        animFrames = [];
+        animFrameTimer = 0;
+        waveCaptureTimer = 0;
+        state = 'capturing_wave';
       } else {
         showingMatch = null;
         capturedFlagImage = canvas.toDataURL('image/png');
         state = 'exploding';
         explodedFlag = currentFlag;
+        isWaveCapture = false;
 
         // Pick random effect type
         currentEffectType = pick(EFFECT_TYPES);
@@ -495,6 +501,29 @@ function render(now) {
       state = 'result';
       showResultDialog(explodedFlag);
       // Encode GIF asynchronously to avoid blocking dialog display
+      const frames = animFrames;
+      animFrames = [];
+      setTimeout(() => {
+        const gif = encodeGIF(frames, canvas.width, canvas.height, ANIM_FPS);
+        capturedAnimURL = URL.createObjectURL(new Blob([gif], { type: 'image/gif' }));
+        resultFlagImg.src = capturedAnimURL;
+      }, 0);
+    }
+
+  } else if (state === 'capturing_wave') {
+    // Foreign real flag: capture waving frames without destruction
+    waveCaptureTimer += dt;
+    flagRenderer.renderFlag(explodedFlag, 1.0);
+
+    animFrameTimer += dt;
+    if (animFrameTimer >= ANIM_FRAME_INTERVAL) {
+      animFrameTimer -= ANIM_FRAME_INTERVAL;
+      animFrames.push(capturePixels());
+    }
+
+    if (waveCaptureTimer >= WAVE_CAPTURE_DURATION) {
+      state = 'result';
+      showResultDialog(explodedFlag);
       const frames = animFrames;
       animFrames = [];
       setTimeout(() => {
