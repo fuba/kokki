@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>kokki - ランダム国旗ジェネレーター</title>
+    <title>国旗</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -12,67 +12,126 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            background: #1a1a2e;
-            font-family: 'Segoe UI', 'Hiragino Sans', sans-serif;
-            color: #eee;
-            overflow: hidden;
+            background: #f5f0e8;
+            font-family: "游明朝", "Yu Mincho", "Hiragino Mincho ProN", "MS PMincho", serif;
+            color: #1a1a1a;
+        }
+
+        /* Header bar */
+        #header {
+            width: 100%;
+            border-bottom: 2px solid #1a1a1a;
+            padding: 8px 0 6px;
+            text-align: center;
+            background: #f5f0e8;
+            margin-bottom: 24px;
+        }
+        #header-inner {
+            max-width: 700px;
+            margin: 0 auto;
+            border-bottom: 1px solid #1a1a1a;
+            padding-bottom: 6px;
+        }
+        #header-label {
+            font-size: 0.75em;
+            letter-spacing: 0.3em;
+            color: #666;
         }
         h1 {
-            margin-bottom: 20px;
-            font-size: 2.5em;
-            letter-spacing: 0.15em;
-            text-shadow: 0 0 20px rgba(255,255,255,0.1);
+            font-size: 2.2em;
+            font-weight: 400;
+            letter-spacing: 0.5em;
+            margin: 4px 0 0;
+        }
+
+        /* Main area */
+        #main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #section-title {
+            font-size: 0.85em;
+            letter-spacing: 0.2em;
+            color: #555;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #999;
+            padding-bottom: 4px;
         }
         #canvas-container {
             position: relative;
-            border: 3px solid #333;
-            box-shadow: 0 0 40px rgba(0,0,0,0.6);
-            border-radius: 4px;
+            border: 1px solid #1a1a1a;
+            outline: 1px solid #1a1a1a;
+            outline-offset: 3px;
         }
         canvas {
             display: block;
         }
+
+        /* Info */
+        #info {
+            margin-top: 10px;
+            font-size: 0.8em;
+            color: #777;
+            letter-spacing: 0.1em;
+            font-family: monospace;
+        }
+
+        /* Button */
         #explode-btn {
-            margin-top: 28px;
-            padding: 18px 56px;
-            font-size: 1.4em;
-            font-weight: bold;
-            letter-spacing: 0.2em;
-            border: none;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: white;
+            margin-top: 20px;
+            padding: 10px 40px;
+            font-size: 1.1em;
+            font-weight: 400;
+            font-family: "游明朝", "Yu Mincho", "Hiragino Mincho ProN", "MS PMincho", serif;
+            letter-spacing: 0.4em;
+            border: 1px solid #1a1a1a;
+            background: #fff;
+            color: #1a1a1a;
             cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
+            transition: background 0.15s;
             user-select: none;
         }
         #explode-btn:hover:not(:disabled) {
-            transform: scale(1.08);
-            box-shadow: 0 0 30px rgba(231, 76, 60, 0.6);
+            background: #1a1a1a;
+            color: #f5f0e8;
         }
         #explode-btn:active:not(:disabled) {
-            transform: scale(0.96);
+            background: #333;
+            color: #f5f0e8;
         }
         #explode-btn:disabled {
-            opacity: 0.4;
+            opacity: 0.35;
             cursor: not-allowed;
         }
-        #info {
-            margin-top: 14px;
-            font-size: 1em;
-            color: #888;
-            letter-spacing: 0.05em;
+
+        /* Footer */
+        #footer {
+            margin-top: 30px;
+            font-size: 0.65em;
+            color: #999;
+            letter-spacing: 0.15em;
+            border-top: 1px solid #ccc;
+            padding-top: 8px;
         }
     </style>
 </head>
 <body>
-    <h1>kokki</h1>
-    <div id="canvas-container">
-        <canvas id="canvas" width="640" height="420"></canvas>
+    <div id="header">
+        <div id="header-inner">
+            <div id="header-label">無作為生成</div>
+            <h1>国旗</h1>
+        </div>
     </div>
-    <button id="explode-btn">EXPLODE!</button>
-    <p id="info"></p>
+    <div id="main">
+        <div id="section-title">第一面　旗章図</div>
+        <div id="canvas-container">
+            <canvas id="canvas" width="640" height="420"></canvas>
+        </div>
+        <p id="info"></p>
+        <button id="explode-btn">損壊</button>
+    </div>
+    <div id="footer">本紙は無作為に生成された旗章であり、既存の国旗との一致は偶然によるものである</div>
     <script type="module" src="src/main.js"></script>
 </body>
 </html>
