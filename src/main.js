@@ -7,6 +7,7 @@ import { playEffectSound } from './sound.js';
 import { encodeGIF } from './gif-encoder.js';
 import { playKimigayo, stopKimigayo, KIMIGAYO_CHORUS_SEC } from './kimigayo.js';
 import { playAnthem, stopAnthem } from './anthems.js';
+import { showSoundTest, hideSoundTest, isSoundTestVisible } from './soundtest.js';
 import { t, lang } from './i18n.js';
 
 // Fixed palettes: 5 shapes x 5 bg colors x 5 shape colors = 125 combinations
@@ -91,6 +92,7 @@ let capturedFlagImage = null;
 let fadeInAlpha = 1.0;
 let currentEffectType = null;
 let currentEffect = null;
+let showingMatch = null;
 
 // GIF capture state
 const ANIM_FPS = 12;
@@ -287,6 +289,12 @@ function startSpin() {
 btn.addEventListener('click', startSpin);
 
 document.addEventListener('keydown', (e) => {
+  // Sound test overlay takes priority over all other key handling
+  if (isSoundTestVisible()) {
+    if (e.key === 'Escape') hideSoundTest();
+    return;
+  }
+
   if (e.code === 'Space') {
     e.preventDefault();
     if (state === 'result') {
@@ -296,10 +304,13 @@ document.addEventListener('keydown', (e) => {
     }
   }
 
-  // Hidden key sequences to trigger anthem
+  // Hidden key sequences
   kimigayoBuf += e.key.toLowerCase();
   if (kimigayoBuf.length > 20) kimigayoBuf = kimigayoBuf.slice(-20);
-  if (kimigayoBuf.endsWith('kimigayo')) {
+  if (kimigayoBuf.endsWith('soundtest')) {
+    kimigayoBuf = '';
+    showSoundTest();
+  } else if (kimigayoBuf.endsWith('kimigayo')) {
     kimigayoBuf = '';
     playKimigayo();
   } else if (kimigayoBuf.endsWith('yogamiki')) {
@@ -354,6 +365,7 @@ function render(now) {
       state = 'showing';
       showTimer = 0;
       const match = matchFlag(currentFlag);
+      showingMatch = match;
       if (match && match.japan) {
         showDuration = SHOW_DURATION_KIMIGAYO;
         playKimigayo();
@@ -376,23 +388,39 @@ function render(now) {
     if (showTimer >= showDuration) {
       stopKimigayo();
       stopAnthem();
-      capturedFlagImage = canvas.toDataURL('image/png');
-      state = 'exploding';
-      explodedFlag = currentFlag;
 
-      // Pick random effect type
-      currentEffectType = pick(EFFECT_TYPES);
-      currentEffect = effects[currentEffectType];
-      playEffectSound(currentEffectType);
-      currentEffect.emit(currentFlag, (u, v) => flagRenderer.projectFlagPoint(u, v));
+      if (showingMatch && !showingMatch.japan) {
+        // Foreign real flag: no destruction, start next spin
+        showingMatch = null;
+        currentFlag = generateFlag();
+        showFlagInfo(currentFlag);
+        state = 'spinning';
+        btn.disabled = true;
+        spinTimer = 0;
+        spinElapsed = 0;
+        spinInterval = 0.08;
+        spinFadeAlpha = 1.0;
+        spinDuration = SPIN_MIN_DURATION + Math.random() * (SPIN_MAX_DURATION - SPIN_MIN_DURATION);
+      } else {
+        showingMatch = null;
+        capturedFlagImage = canvas.toDataURL('image/png');
+        state = 'exploding';
+        explodedFlag = currentFlag;
 
-      // Start GIF capture — include pre-destruction frames (0.5s hold)
-      if (capturedAnimURL) { URL.revokeObjectURL(capturedAnimURL); capturedAnimURL = null; }
-      animFrames = [];
-      const prePixels = capturePixels();
-      const preCount = Math.round(ANIM_FPS * 0.5);
-      for (let i = 0; i < preCount; i++) animFrames.push(prePixels);
-      animFrameTimer = 0;
+        // Pick random effect type
+        currentEffectType = pick(EFFECT_TYPES);
+        currentEffect = effects[currentEffectType];
+        playEffectSound(currentEffectType);
+        currentEffect.emit(currentFlag, (u, v) => flagRenderer.projectFlagPoint(u, v));
+
+        // Start GIF capture — include pre-destruction frames (0.5s hold)
+        if (capturedAnimURL) { URL.revokeObjectURL(capturedAnimURL); capturedAnimURL = null; }
+        animFrames = [];
+        const prePixels = capturePixels();
+        const preCount = Math.round(ANIM_FPS * 0.5);
+        for (let i = 0; i < preCount; i++) animFrames.push(prePixels);
+        animFrameTimer = 0;
+      }
     }
 
   } else if (state === 'exploding') {

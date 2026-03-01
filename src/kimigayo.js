@@ -1,5 +1,5 @@
 // Full Kimigayo (Japanese national anthem) — orchestral arrangement
-// Melody from official MIDI transcription (Hayashi/Eckert, 60 BPM, 4/4)
+// Public domain melody (Hayashi/Eckert, 1880; 60 BPM, 4/4)
 // Notes: C4 D4 E4 G4 A4 B4 C5 D5 (Ichikotsu-cho mode)
 
 let audioCtx = null;

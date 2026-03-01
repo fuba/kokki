@@ -23,7 +23,7 @@ const ja = {
     '本法案が成立した場合、本件は同罪に該当する可能性があります。',
   warningForeignTitle: '刑法第92条（外国国章損壊等）',
   warningForeignBody: (c) =>
-    `本件は${c}っぽい旗章の損壊であり、同条に該当する可能性があります。<br><br>` +
+    `もし${c}っぽい旗章を損壊した場合、同条に該当する可能性があります。<br><br>` +
     '<strong>刑法第92条第1項</strong><br>' +
     '外国に対して侮辱を加える目的で、その国の国旗その他の国章を損壊し、除去し、' +
     '又は汚損した者は、二年以下の拘禁刑又は二十万円以下の罰金に処する。<br><br>' +
@@ -63,7 +63,7 @@ const en = {
     'If this bill is enacted, this incident may constitute such an offense.',
   warningForeignTitle: 'Penal Code Article 92 (Damage to Foreign National Emblems)',
   warningForeignBody: (c) =>
-    `This may constitute desecration of a ${c}-ish flag under Article 92.<br><br>` +
+    `If a ${c}-ish flag were to be destroyed, it may constitute an offense under Article 92.<br><br>` +
     '<strong>Article 92, Paragraph 1</strong><br>' +
     'A person who, for the purpose of insulting a foreign state, damages, removes, ' +
     'or defaces the national flag or other national emblem of said state shall be punished by ' +
