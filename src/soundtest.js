@@ -2,11 +2,13 @@
 
 import { playAnthem, stopAnthem } from './anthems.js';
 import { playKimigayo, stopKimigayo } from './kimigayo.js';
+import { playGunkan, stopGunkan, GUNKAN_DURATION_SEC } from './gunkan.js';
 import { lang } from './i18n.js';
 
 const TRACKS = [
   { id: 'Japan',       ja: '日本',           en: 'Japan',       desc: '君が代',           descEn: 'Kimigayo',           pd: true },
   { id: 'Japan_b',     ja: '日本（変調）',    en: 'Japan (broken)', desc: '君が代（壊）',   descEn: 'Kimigayo (broken)',  pd: true },
+  { id: 'Gunkan',      ja: '軍艦行進曲',      en: 'Gunkan March',  desc: '軍艦行進曲（サビ）', descEn: 'Gunkan March (chorus)', pd: true },
   { id: 'Bangladesh',  ja: 'バングラデシュ',  en: 'Bangladesh',  desc: 'আমার সোনার বাংলা', descEn: 'Amar Sonar Bangla',  pd: true },
   { id: 'Vietnam',     ja: 'ベトナム',        en: 'Vietnam',     desc: 'ベトナム音楽風',     descEn: 'Vietnamese style',   pd: false },
   { id: 'Switzerland', ja: 'スイス',          en: 'Switzerland', desc: 'スイスの賛歌',       descEn: 'Swiss Psalm',        pd: true },
@@ -23,6 +25,7 @@ let visible = false;
 
 function stopAll() {
   stopKimigayo();
+  stopGunkan();
   stopAnthem();
   if (autoStopTimer) {
     clearTimeout(autoStopTimer);
@@ -54,6 +57,14 @@ function toggleTrack(id) {
     playKimigayo();
   } else if (id === 'Japan_b') {
     playKimigayo(true);
+  } else if (id === 'Gunkan') {
+    playGunkan();
+    autoStopTimer = setTimeout(() => {
+      if (currentPlaying === id) {
+        currentPlaying = null;
+        updateUI();
+      }
+    }, GUNKAN_DURATION_SEC * 1000 + 300);
   } else {
     const dur = playAnthem(id);
     if (dur > 0) {

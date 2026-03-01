@@ -91,6 +91,16 @@ function sdRing(px, py, r) {
   return Math.abs(Math.sqrt(px * px + py * py) - r) - r * 0.15;
 }
 
+// Rising Sun: static version (no rotation) for particle color sampling, offset right
+function sdRisingSun(px, py, r) {
+  const rpx = px - 0.35;
+  const len = Math.sqrt(rpx * rpx + py * py);
+  const circleD = len - r * 0.55;
+  const angle = Math.atan2(py, rpx);
+  const rayD = -Math.cos(angle * 16.0) * 0.015;
+  return Math.min(circleD, rayD);
+}
+
 // Returns true if point (px, py) is inside the shape
 // px, py are in aspect-corrected coordinates (px = uv.x * aspect)
 export function isInsideShape(px, py, shapeType, shapeSize) {
@@ -103,6 +113,7 @@ export function isInsideShape(px, py, shapeType, shapeSize) {
     case 5: d = sdDiamond(px, py, shapeSize); break;
     case 6: d = sdHexagon(px, py, shapeSize); break;
     case 7: d = sdRing(px, py, shapeSize); break;
+    case 8: d = sdRisingSun(px, py, shapeSize); break;
     default: d = sdCircle(px, py, shapeSize);
   }
   return d < 0;

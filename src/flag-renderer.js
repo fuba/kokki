@@ -264,6 +264,7 @@ uniform float u_shapeType;
 uniform float u_shapeSize;
 uniform float u_alpha;
 uniform float u_burnLine; // negative = no burn, 0..1 = burn progress
+uniform float u_time;
 
 const float FLAG_ASPECT = 1.5;
 
@@ -349,7 +350,14 @@ float getShape(vec2 p, float shapeType, float size) {
     if (shapeType < 3.5) return sdCross(p, size);
     if (shapeType < 5.5) return sdDiamond(p, size);
     if (shapeType < 6.5) return sdHexagon(p, size);
-    return sdRing(p, size);
+    if (shapeType < 7.5) return sdRing(p, size);
+    // Rising Sun (shapeType 8): red circle + 16 rotating rays, offset right
+    vec2 rp = p - vec2(0.35, 0.0);
+    float rr = length(rp);
+    float circleD = rr - size * 0.55;
+    float angle = atan(rp.y, rp.x) + u_time * 0.4;
+    float rayD = -cos(angle * 16.0) * 0.015;
+    return min(circleD, rayD);
 }
 
 void main() {

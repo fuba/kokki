@@ -9,6 +9,7 @@ const ja = {
   resultFlagAlt: '損壊された旗章',
   resultGeneric: '旗章を損壊しました',
   resultJapan: '日本国旗を損壊しました',
+  resultAsahi: '旭日旗を損壊しました',
   resultCountry: (c) => `${c}っぽい国旗を損壊しました`,
   downloadBtn: '保存',
   shareXBtn: 'X',
@@ -21,6 +22,10 @@ const ja = {
     '本法案では、日本国に対して侮辱を加える目的で、日本国の国旗その他の国章を損壊し、' +
     '除去し、又は汚損した者は、二年以下の拘禁刑又は二十万円以下の罰金に処するとされています。<br><br>' +
     '本法案が成立した場合、本件は同罪に該当する可能性があります。',
+  warningAsahiTitle: '旭日旗について',
+  warningAsahiBody: () =>
+    '旭日旗は日本の海上自衛隊の自衛艦旗として現在も使用されています。<br>' +
+    '旧日本軍の象徴として国際的に議論のある旗章ですが、日本国内では法的な規制はありません。',
   warningForeignTitle: '刑法第92条（外国国章損壊等）',
   warningForeignBody: (c) =>
     `もし${c}っぽい旗章を損壊した場合、同条に該当する可能性があります。<br><br>` +
@@ -32,9 +37,10 @@ const ja = {
   shareText: '国旗を生成したら損壊されました',
   shareTextCountry: (c) => `${c}のような国旗を生成したら損壊されて刑法第92条に抵触しました`,
   shareTextJapan: '日本国旗を生成したら損壊されました。皆さんさようなら',
+  shareTextAsahi: '旭日旗を生成したら損壊されました。軍艦行進曲が鳴り響く中で…',
   infoFormat: (shape, bg, sc) => `${shape}｜地：${bg}｜紋：${sc}`,
   webglError: 'WebGL非対応',
-  shapes: { '円': '円', '星': '星', '三日月': '三日月', '十字': '十字' },
+  shapes: { '円': '円', '星': '星', '三日月': '三日月', '十字': '十字', '旭日': '旭日' },
   colors: { '白': '白', '赤': '赤', '青': '青', '緑': '緑', '黄': '黄', '黒': '黒' },
   effects: { explosion: '爆発', burn: '燃焼' },
 };
@@ -48,6 +54,7 @@ const en = {
   resultFlagAlt: 'Destroyed flag',
   resultGeneric: 'A flag has been destroyed.',
   resultJapan: 'The flag of Japan has been destroyed.',
+  resultAsahi: 'The Rising Sun Flag has been destroyed.',
   resultCountry: (c) => `A ${c}-ish flag has been destroyed.`,
   downloadBtn: 'Save',
   shareXBtn: 'X',
@@ -61,6 +68,11 @@ const en = {
     'or defaces the national flag or other national emblems of Japan shall be punished by ' +
     'imprisonment for not more than 2 years or a fine of not more than 200,000 yen.<br><br>' +
     'If this bill is enacted, this incident may constitute such an offense.',
+  warningAsahiTitle: 'About the Rising Sun Flag',
+  warningAsahiBody: () =>
+    'The Rising Sun Flag is currently used as the naval ensign of the Japan Maritime Self-Defense Force.<br>' +
+    'While internationally controversial as a symbol of Imperial Japan, ' +
+    'there are no legal restrictions on it within Japan.',
   warningForeignTitle: 'Penal Code Article 92 (Damage to Foreign National Emblems)',
   warningForeignBody: (c) =>
     `If a ${c}-ish flag were to be destroyed, it may constitute an offense under Article 92.<br><br>` +
@@ -74,9 +86,10 @@ const en = {
   shareText: 'I tried to generate a flag but it got destroyed.',
   shareTextCountry: (c) => `I generated a ${c}-ish flag and it got destroyed. Penal Code Art. 92 violated.`,
   shareTextJapan: "I generated the Japanese flag and it got destroyed. Goodbye everyone.",
+  shareTextAsahi: "I generated the Rising Sun Flag and it got destroyed. The Gunkan March played as it happened...",
   infoFormat: (shape, bg, sc) => `${shape} | bg: ${bg} | emblem: ${sc}`,
   webglError: 'WebGL not supported',
-  shapes: { '円': 'Circle', '星': 'Star', '三日月': 'Crescent', '十字': 'Cross' },
+  shapes: { '円': 'Circle', '星': 'Star', '三日月': 'Crescent', '十字': 'Cross', '旭日': 'Rising Sun' },
   colors: { '白': 'White', '赤': 'Red', '青': 'Blue', '緑': 'Green', '黄': 'Yellow', '黒': 'Black' },
   effects: { explosion: 'Explosion', burn: 'Combustion' },
 };

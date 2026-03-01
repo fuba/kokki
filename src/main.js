@@ -6,6 +6,7 @@ import { BurnEffect } from './effects/burn.js';
 import { playEffectSound } from './sound.js';
 import { encodeGIF } from './gif-encoder.js';
 import { playKimigayo, stopKimigayo, KIMIGAYO_CHORUS_SEC } from './kimigayo.js';
+import { playGunkan, stopGunkan, GUNKAN_DURATION_SEC } from './gunkan.js';
 import { playAnthem, stopAnthem } from './anthems.js';
 import { showSoundTest, hideSoundTest, isSoundTestVisible } from './soundtest.js';
 import { t, lang } from './i18n.js';
@@ -159,6 +160,19 @@ function generateFlag() {
   };
 }
 
+function makeAsahiFlag() {
+  return {
+    bgColor: [1.0, 1.0, 1.0],
+    shapeColor: [0.8, 0.0, 0.0],
+    shapeType: 8,
+    shapeSize: 0.42,
+    bgName: '白',
+    shapeName: '旭日',
+    shapeColorName: '赤',
+    asahi: true,
+  };
+}
+
 // Known real-world flags and protected emblems
 const KNOWN_FLAGS = [
   { bg: '白', sc: '赤', shape: '円',     country: '日本',         countryEn: 'Japan',        japan: true },
@@ -203,15 +217,21 @@ function showFlagInfo(flag) {
 function showResultDialog(flag) {
   const match = matchFlag(flag);
   lastMatchResult = match;
+  const isAsahi = !!flag.asahi;
   const countryName = match ? (lang === 'en' ? match.countryEn : match.country) : null;
 
   resultFlagImg.src = capturedFlagImage;
 
   // Hide share button for non-Japan real country flags (to avoid diplomatic issues)
-  const isForeignMatch = match && !match.japan;
+  const isForeignMatch = match && !match.japan && !isAsahi;
   shareXBtn.style.display = isForeignMatch ? 'none' : '';
 
-  if (match) {
+  if (isAsahi) {
+    resultTitle.textContent = t.resultAsahi;
+    resultWarning.style.display = 'block';
+    resultWarningTitle.textContent = t.warningAsahiTitle;
+    resultWarningBody.innerHTML = t.warningAsahiBody();
+  } else if (match) {
     resultTitle.textContent = match.japan ? t.resultJapan : t.resultCountry(countryName);
     resultWarning.style.display = 'block';
 
@@ -260,7 +280,9 @@ downloadBtn.addEventListener('click', () => {
 let lastMatchResult = null;
 shareXBtn.addEventListener('click', () => {
   let text;
-  if (lastMatchResult && lastMatchResult.japan) {
+  if (explodedFlag && explodedFlag.asahi) {
+    text = t.shareTextAsahi;
+  } else if (lastMatchResult && lastMatchResult.japan) {
     text = t.shareTextJapan;
   } else if (lastMatchResult) {
     const name = lang === 'en' ? lastMatchResult.countryEn : lastMatchResult.country;
@@ -317,6 +339,19 @@ document.addEventListener('keydown', (e) => {
   } else if (kimigayoBuf.endsWith('yogamiki')) {
     kimigayoBuf = '';
     playKimigayo(true); // broken version
+  } else if (kimigayoBuf.endsWith('asahi')) {
+    kimigayoBuf = '';
+    stopKimigayo();
+    stopAnthem();
+    stopGunkan();
+    currentFlag = makeAsahiFlag();
+    showFlagInfo(currentFlag);
+    state = 'showing';
+    showTimer = 0;
+    showDuration = GUNKAN_DURATION_SEC;
+    showingMatch = null;
+    btn.disabled = true;
+    playGunkan();
   }
 });
 
@@ -363,22 +398,35 @@ function render(now) {
     flagRenderer.renderFlag(currentFlag, spinFadeAlpha);
 
     if (spinElapsed >= spinDuration) {
+      // 1/1000 chance: Rising Sun easter egg
+      if (Math.random() < 0.001) {
+        currentFlag = makeAsahiFlag();
+        showFlagInfo(currentFlag);
+      }
+
       state = 'showing';
       showTimer = 0;
-      const match = matchFlag(currentFlag);
-      showingMatch = match;
-      if (match && match.japan) {
-        showDuration = SHOW_DURATION_KIMIGAYO;
-        playKimigayo();
-      } else if (match) {
-        // Foreign country matched — play its national anthem
-        const anthemDur = playAnthem(match.countryEn);
-        showDuration = anthemDur > 0 ? anthemDur + 0.5 : SHOW_DURATION_NORMAL;
-      } else if (isNearMissJapan(currentFlag)) {
-        showDuration = SHOW_DURATION_NEAR_MISS;
-        playKimigayo(true); // broken/chaotic near-miss version
+
+      if (currentFlag.asahi) {
+        showDuration = GUNKAN_DURATION_SEC;
+        playGunkan();
+        showingMatch = null;
       } else {
-        showDuration = SHOW_DURATION_NORMAL;
+        const match = matchFlag(currentFlag);
+        showingMatch = match;
+        if (match && match.japan) {
+          showDuration = SHOW_DURATION_KIMIGAYO;
+          playKimigayo();
+        } else if (match) {
+          // Foreign country matched — play its national anthem
+          const anthemDur = playAnthem(match.countryEn);
+          showDuration = anthemDur > 0 ? anthemDur + 0.5 : SHOW_DURATION_NORMAL;
+        } else if (isNearMissJapan(currentFlag)) {
+          showDuration = SHOW_DURATION_NEAR_MISS;
+          playKimigayo(true); // broken/chaotic near-miss version
+        } else {
+          showDuration = SHOW_DURATION_NORMAL;
+        }
       }
     }
 
@@ -389,8 +437,9 @@ function render(now) {
     if (showTimer >= showDuration) {
       stopKimigayo();
       stopAnthem();
+      stopGunkan();
 
-      if (showingMatch && !showingMatch.japan) {
+      if (showingMatch && !showingMatch.japan && !currentFlag.asahi) {
         // Foreign real flag: no destruction, start next spin
         showingMatch = null;
         currentFlag = generateFlag();
