@@ -4,9 +4,31 @@ import { FlagRenderer } from './flag-renderer.js';
 import { ParticleSystem } from './particles.js';
 import { playExplosionSound } from './sound.js';
 
-const SHAPE_NAMES = [
-  '円', '星', '三日月', '十字',
-  '三角', '菱形', '六角', '輪',
+// Fixed palettes: 5 shapes x 5 bg colors x 5 shape colors = 125 combinations
+// Japanese flag (white bg + red circle) = 1/125 chance
+
+const SHAPES = [
+  { type: 0, name: '円',   size: 0.30 },
+  { type: 1, name: '星',   size: 0.30 },
+  { type: 2, name: '三日月', size: 0.30 },
+  { type: 3, name: '十字', size: 0.28 },
+  { type: 4, name: '三角', size: 0.32 },
+];
+
+const BG_COLORS = [
+  { rgb: [1.0, 1.0, 1.0],   name: '白' },   // white - Japan bg
+  { rgb: [0.8, 0.0, 0.0],   name: '赤' },   // red
+  { rgb: [0.0, 0.2, 0.6],   name: '青' },   // blue
+  { rgb: [0.0, 0.4, 0.2],   name: '緑' },   // green
+  { rgb: [1.0, 0.8, 0.0],   name: '黄' },   // yellow
+];
+
+const SHAPE_COLORS = [
+  { rgb: [0.8, 0.0, 0.0],   name: '赤' },   // red - Japan circle
+  { rgb: [1.0, 1.0, 1.0],   name: '白' },   // white
+  { rgb: [0.0, 0.2, 0.6],   name: '青' },   // blue
+  { rgb: [1.0, 0.8, 0.0],   name: '黄' },   // yellow
+  { rgb: [0.0, 0.0, 0.0],   name: '黒' },   // black
 ];
 
 const canvas = document.getElementById('canvas');
@@ -38,26 +60,27 @@ const SETTLE_SLOW_START = 0.7; // start slowing at 70% through
 
 showFlagInfo(currentFlag);
 
-function randomColor() {
-  return [Math.random(), Math.random(), Math.random()];
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
 }
 
 function generateFlag() {
+  const shape = pick(SHAPES);
+  const bg = pick(BG_COLORS);
+  const sc = pick(SHAPE_COLORS);
   return {
-    bgColor: randomColor(),
-    shapeColor: randomColor(),
-    shapeType: Math.floor(Math.random() * SHAPE_NAMES.length),
-    shapeSize: 0.2 + Math.random() * 0.25,
+    bgColor: bg.rgb,
+    shapeColor: sc.rgb,
+    shapeType: shape.type,
+    shapeSize: shape.size,
+    bgName: bg.name,
+    shapeName: shape.name,
+    shapeColorName: sc.name,
   };
 }
 
 function showFlagInfo(flag) {
-  info.textContent = `${SHAPE_NAMES[flag.shapeType]}｜${rgbToHex(flag.bgColor)}｜${rgbToHex(flag.shapeColor)}`;
-}
-
-function rgbToHex([r, g, b]) {
-  const toHex = (v) => Math.round(v * 255).toString(16).padStart(2, '0');
-  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  info.textContent = `${flag.shapeName}｜地：${flag.bgName}｜紋：${flag.shapeColorName}`;
 }
 
 function startSpin() {
