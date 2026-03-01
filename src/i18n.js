@@ -15,14 +15,12 @@ const ja = {
   closeBtn: 'もう一度生成',
   footer: '本ゲームで生成される旗章は架空のものであり、既存の国旗との一致は偶然によるものです',
   warningJapanTitle: '日本国国章損壊罪の創設に係る刑法改正案（第219回国会提出）',
-  warningJapanBody: (station) =>
+  warningJapanBody: () =>
     '第219回国会（令和7年）において、参政党は日本国国章損壊罪の創設を内容とする' +
     '刑法の一部を改正する法律案を参議院に提出しました。<br>' +
     '本法案では、日本国に対して侮辱を加える目的で、日本国の国旗その他の国章を損壊し、' +
     '除去し、又は汚損した者は、二年以下の拘禁刑又は二十万円以下の罰金に処するとされています。<br><br>' +
-    '本法案が成立した場合、本件は同罪に該当する可能性があります。<br>' +
-    '速やかに自首されることをお勧めいたします。<br><br>' +
-    '<strong>自首先：</strong><br>' + station,
+    '本法案が成立した場合、本件は同罪に該当する可能性があります。',
   warningForeignTitle: '刑法第92条（外国国章損壊等）',
   warningForeignBody: (c) =>
     `本件は${c}っぽい旗章の損壊であり、同条に該当する可能性があります。<br><br>` +
@@ -56,15 +54,13 @@ const en = {
   closeBtn: 'Generate Again',
   footer: 'Flags generated in this game are fictional. Any resemblance to an existing national flag is purely coincidental.',
   warningJapanTitle: 'Bill to Create the Crime of Desecration of Japanese National Emblems (Submitted to the 219th Diet)',
-  warningJapanBody: (station) =>
+  warningJapanBody: () =>
     'In the 219th session of the Diet (2025), a bill was submitted to the House of Councillors ' +
     'to amend the Penal Code by establishing the crime of desecration of Japanese national emblems.<br>' +
     'Under this bill, any person who, for the purpose of insulting Japan, damages, removes, ' +
     'or defaces the national flag or other national emblems of Japan shall be punished by ' +
     'imprisonment for not more than 2 years or a fine of not more than 200,000 yen.<br><br>' +
-    'If this bill is enacted, this incident may constitute such an offense.<br>' +
-    'We recommend surrendering to authorities promptly.<br><br>' +
-    '<strong>Nearest station:</strong><br>' + station,
+    'If this bill is enacted, this incident may constitute such an offense.',
   warningForeignTitle: 'Penal Code Article 92 (Damage to Foreign National Emblems)',
   warningForeignBody: (c) =>
     `This may constitute desecration of a ${c}-ish flag under Article 92.<br><br>` +

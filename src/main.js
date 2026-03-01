@@ -4,7 +4,7 @@ import { FlagRenderer } from './flag-renderer.js';
 import { ExplosionEffect } from './effects/explosion.js';
 import { BurnEffect } from './effects/burn.js';
 import { playEffectSound } from './sound.js';
-import { encodeAPNG } from './apng-encoder.js';
+import { encodeGIF } from './gif-encoder.js';
 import { playKimigayo, stopKimigayo, KIMIGAYO_CHORUS_SEC } from './kimigayo.js';
 import { playAnthem, stopAnthem } from './anthems.js';
 import { t, lang } from './i18n.js';
@@ -93,12 +93,31 @@ let fadeInAlpha = 1.0;
 let currentEffectType = null;
 let currentEffect = null;
 
-// APNG capture state
+// GIF capture state
 const ANIM_FPS = 12;
 const ANIM_FRAME_INTERVAL = 1 / ANIM_FPS;
 let animFrames = [];
 let animFrameTimer = 0;
 let capturedAnimURL = null;
+
+// Read RGBA pixels from the WebGL canvas (top-to-bottom row order)
+function capturePixels() {
+  const w = canvas.width;
+  const h = canvas.height;
+  const pixels = new Uint8Array(w * h * 4);
+  gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+  // Flip vertically — WebGL reads bottom-to-top
+  const rowBytes = w * 4;
+  const tmp = new Uint8Array(rowBytes);
+  for (let y = 0; y < (h >> 1); y++) {
+    const topOff = y * rowBytes;
+    const botOff = (h - 1 - y) * rowBytes;
+    tmp.set(pixels.subarray(topOff, topOff + rowBytes));
+    pixels.set(pixels.subarray(botOff, botOff + rowBytes), topOff);
+    pixels.set(tmp, botOff);
+  }
+  return pixels;
+}
 
 // Roulette state
 let spinTimer = 0;
@@ -152,16 +171,6 @@ const KNOWN_FLAGS = [
   { bg: '白', sc: '赤', shape: '三日月', country: 'チュニジア',   countryEn: 'Tunisia' },
 ];
 
-const POLICE_STATIONS = [
-  '警視庁 丸の内警察署（東京都千代田区丸の内一丁目1番1号）',
-  '警視庁 麹町警察署（東京都千代田区麹町五丁目1番6号）',
-  '大阪府警察 曽根崎警察署（大阪市北区曽根崎二丁目16番14号）',
-  '神奈川県警察 加賀町警察署（横浜市中区山下町203番地）',
-  '愛知県警察 中警察署（名古屋市中区丸の内三丁目27番26号）',
-  '京都府警察 五条警察署（京都市下京区大宮通松原下ル上五条町394番地）',
-  '福岡県警察 博多警察署（福岡市博多区博多駅前一丁目1番1号）',
-  '北海道警察 札幌中央警察署（札幌市中央区北一条西五丁目11番地）',
-];
 
 function matchFlag(flag) {
   return KNOWN_FLAGS.find(
@@ -202,9 +211,7 @@ function showResultDialog(flag) {
 
     if (match.japan) {
       resultWarningTitle.textContent = t.warningJapanTitle;
-      resultWarningBody.innerHTML = t.warningJapanBody(
-        POLICE_STATIONS[Math.floor(Math.random() * POLICE_STATIONS.length)]
-      );
+      resultWarningBody.innerHTML = t.warningJapanBody();
     } else {
       resultWarningTitle.textContent = t.warningForeignTitle;
       resultWarningBody.innerHTML = t.warningForeignBody(countryName);
@@ -233,13 +240,13 @@ function hideResultDialog() {
 
 resultCloseBtn.addEventListener('click', hideResultDialog);
 
-// Download APNG (falls back to static PNG if not ready)
+// Download GIF (falls back to static PNG if not ready)
 downloadBtn.addEventListener('click', () => {
   const url = capturedAnimURL || capturedFlagImage;
   if (!url) return;
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'destroyed-flag.png';
+  a.download = capturedAnimURL ? 'destroyed-flag.gif' : 'destroyed-flag.png';
   a.click();
 });
 
@@ -376,11 +383,12 @@ function render(now) {
       playEffectSound(currentEffectType);
       currentEffect.emit(currentFlag, (u, v) => flagRenderer.projectFlagPoint(u, v));
 
-      // Start APNG capture — include pre-destruction frames (0.5s hold)
+      // Start GIF capture — include pre-destruction frames (0.5s hold)
       if (capturedAnimURL) { URL.revokeObjectURL(capturedAnimURL); capturedAnimURL = null; }
       animFrames = [];
+      const prePixels = capturePixels();
       const preCount = Math.round(ANIM_FPS * 0.5);
-      for (let i = 0; i < preCount; i++) animFrames.push(capturedFlagImage);
+      for (let i = 0; i < preCount; i++) animFrames.push(prePixels);
       animFrameTimer = 0;
     }
 
@@ -395,22 +403,22 @@ function render(now) {
 
     currentEffect.render();
 
-    // Capture frames for APNG
+    // Capture frames for GIF
     animFrameTimer += dt;
     if (animFrameTimer >= ANIM_FRAME_INTERVAL) {
       animFrameTimer -= ANIM_FRAME_INTERVAL;
-      animFrames.push(canvas.toDataURL('image/png'));
+      animFrames.push(capturePixels());
     }
 
     if (currentEffect.isDead()) {
       state = 'result';
       showResultDialog(explodedFlag);
-      // Encode APNG asynchronously to avoid blocking dialog display
+      // Encode GIF asynchronously to avoid blocking dialog display
       const frames = animFrames;
       animFrames = [];
       setTimeout(() => {
-        const apng = encodeAPNG(frames, ANIM_FPS);
-        capturedAnimURL = URL.createObjectURL(new Blob([apng], { type: 'image/png' }));
+        const gif = encodeGIF(frames, canvas.width, canvas.height, ANIM_FPS);
+        capturedAnimURL = URL.createObjectURL(new Blob([gif], { type: 'image/gif' }));
         resultFlagImg.src = capturedAnimURL;
       }, 0);
     }
