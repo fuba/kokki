@@ -1,0 +1,96 @@
+// JavaScript SDF shape functions matching the GLSL implementations.
+// Used to determine particle colors when the flag explodes.
+
+function sdCircle(px, py, r) {
+  return Math.sqrt(px * px + py * py) - r;
+}
+
+function sdBox(px, py, bx, by) {
+  const dx = Math.abs(px) - bx;
+  const dy = Math.abs(py) - by;
+  const outside = Math.sqrt(Math.max(dx, 0) ** 2 + Math.max(dy, 0) ** 2);
+  const inside = Math.min(Math.max(dx, dy), 0);
+  return outside + inside;
+}
+
+function sdStar5(px, py, r) {
+  const innerR = r * 0.38;
+  let angle = Math.atan2(py, px) + Math.PI / 2;
+  const segAngle = (2 * Math.PI) / 5;
+  const halfSeg = segAngle * 0.5;
+  let a = ((angle % segAngle) + segAngle) % segAngle;
+  if (a > halfSeg) a = segAngle - a;
+  const t = a / halfSeg;
+  const targetR = r + (innerR - r) * t;
+  return Math.sqrt(px * px + py * py) - targetR;
+}
+
+function sdCrescent(px, py, r) {
+  const d1 = sdCircle(px, py, r);
+  const d2 = sdCircle(px - r * 0.4, py, r * 0.85);
+  return Math.max(d1, -d2);
+}
+
+function sdCross(px, py, size) {
+  const w = size * 0.28;
+  const h = size;
+  const d1 = sdBox(px, py, w, h);
+  const d2 = sdBox(px, py, h, w);
+  return Math.min(d1, d2);
+}
+
+function sdTriangle(px, py, r) {
+  const k = Math.sqrt(3);
+  let x = Math.abs(px) - r;
+  let y = py + r / k;
+  if (x + k * y > 0) {
+    const nx = (x - k * y) / 2;
+    const ny = (-k * x - y) / 2;
+    x = nx;
+    y = ny;
+  }
+  x -= Math.max(-2 * r, Math.min(x, 0));
+  return -Math.sqrt(x * x + y * y) * Math.sign(y);
+}
+
+function sdDiamond(px, py, r) {
+  const rpx = (px + py) * 0.7071;
+  const rpy = (py - px) * 0.7071;
+  return sdBox(rpx, rpy, r * 0.7, r * 0.7);
+}
+
+function sdHexagon(px, py, r) {
+  const kx = -0.866025404;
+  const ky = 0.5;
+  const kz = 0.577350269;
+  let x = Math.abs(px);
+  let y = Math.abs(py);
+  const dot = Math.min(kx * x + ky * y, 0);
+  x -= 2 * dot * kx;
+  y -= 2 * dot * ky;
+  x -= Math.max(-kz * r, Math.min(x, kz * r));
+  y -= r;
+  return Math.sqrt(x * x + y * y) * Math.sign(y);
+}
+
+function sdRing(px, py, r) {
+  return Math.abs(Math.sqrt(px * px + py * py) - r) - r * 0.15;
+}
+
+// Returns true if point (px, py) is inside the shape
+// px, py are in aspect-corrected coordinates (px = uv.x * aspect)
+export function isInsideShape(px, py, shapeType, shapeSize) {
+  let d;
+  switch (shapeType) {
+    case 0: d = sdCircle(px, py, shapeSize); break;
+    case 1: d = sdStar5(px, py, shapeSize); break;
+    case 2: d = sdCrescent(px, py, shapeSize); break;
+    case 3: d = sdCross(px, py, shapeSize); break;
+    case 4: d = sdTriangle(px, py, shapeSize); break;
+    case 5: d = sdDiamond(px, py, shapeSize); break;
+    case 6: d = sdHexagon(px, py, shapeSize); break;
+    case 7: d = sdRing(px, py, shapeSize); break;
+    default: d = sdCircle(px, py, shapeSize);
+  }
+  return d < 0;
+}

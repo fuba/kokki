@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kokki - ランダム国旗ジェネレーター</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #1a1a2e;
+            font-family: 'Segoe UI', 'Hiragino Sans', sans-serif;
+            color: #eee;
+            overflow: hidden;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            letter-spacing: 0.15em;
+            text-shadow: 0 0 20px rgba(255,255,255,0.1);
+        }
+        #canvas-container {
+            position: relative;
+            border: 3px solid #333;
+            box-shadow: 0 0 40px rgba(0,0,0,0.6);
+            border-radius: 4px;
+        }
+        canvas {
+            display: block;
+        }
+        #explode-btn {
+            margin-top: 28px;
+            padding: 18px 56px;
+            font-size: 1.4em;
+            font-weight: bold;
+            letter-spacing: 0.2em;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            user-select: none;
+        }
+        #explode-btn:hover:not(:disabled) {
+            transform: scale(1.08);
+            box-shadow: 0 0 30px rgba(231, 76, 60, 0.6);
+        }
+        #explode-btn:active:not(:disabled) {
+            transform: scale(0.96);
+        }
+        #explode-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        #info {
+            margin-top: 14px;
+            font-size: 1em;
+            color: #888;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body>
+    <h1>kokki</h1>
+    <div id="canvas-container">
+        <canvas id="canvas" width="640" height="420"></canvas>
+    </div>
+    <button id="explode-btn">EXPLODE!</button>
+    <p id="info"></p>
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>
