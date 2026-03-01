@@ -159,17 +159,18 @@ function generateFlag() {
   };
 }
 
-// Known real-world flags
+// Known real-world flags and protected emblems
 const KNOWN_FLAGS = [
-  { bg: '白', sc: '赤', shape: '円',   country: '日本',         countryEn: 'Japan',       japan: true },
-  { bg: '緑', sc: '赤', shape: '円',   country: 'バングラデシュ', countryEn: 'Bangladesh' },
-  { bg: '青', sc: '黄', shape: '円',   country: 'パラオ',        countryEn: 'Palau' },
-  { bg: '赤', sc: '黄', shape: '星',   country: 'ベトナム',      countryEn: 'Vietnam' },
-  { bg: '青', sc: '白', shape: '星',   country: 'ソマリア',      countryEn: 'Somalia' },
-  { bg: '赤', sc: '白', shape: '十字', country: 'スイス',        countryEn: 'Switzerland' },
-  { bg: '赤', sc: '白', shape: '三日月', country: 'トルコ',      countryEn: 'Turkey' },
-  { bg: '緑', sc: '白', shape: '三日月', country: 'パキスタン',   countryEn: 'Pakistan' },
-  { bg: '白', sc: '赤', shape: '三日月', country: 'チュニジア',   countryEn: 'Tunisia' },
+  { bg: '白', sc: '赤', shape: '円',     country: '日本',         countryEn: 'Japan',        japan: true },
+  { bg: '緑', sc: '赤', shape: '円',     country: 'バングラデシュ', countryEn: 'Bangladesh' },
+  { bg: '青', sc: '黄', shape: '円',     country: 'パラオ',        countryEn: 'Palau' },
+  { bg: '赤', sc: '黄', shape: '星',     country: 'ベトナム',      countryEn: 'Vietnam' },
+  { bg: '青', sc: '白', shape: '星',     country: 'ソマリア',      countryEn: 'Somalia' },
+  { bg: '赤', sc: '白', shape: '十字',   country: 'スイス',        countryEn: 'Switzerland' },
+  { bg: '白', sc: '赤', shape: '十字',   country: '赤十字',        countryEn: 'Red Cross' },
+  { bg: '赤', sc: '白', shape: '三日月', country: 'トルコ',        countryEn: 'Turkey' },
+  { bg: '緑', sc: '白', shape: '三日月', country: 'パキスタン',     countryEn: 'Pakistan' },
+  { bg: '白', sc: '赤', shape: '三日月', country: '赤新月',        countryEn: 'Red Crescent' },
 ];
 
 
