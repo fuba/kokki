@@ -3,16 +3,18 @@
 import { FlagRenderer } from './flag-renderer.js';
 import { ParticleSystem } from './particles.js';
 import { playExplosionSound } from './sound.js';
+import { playKimigayo } from './kimigayo.js';
 
 // Fixed palettes: 5 shapes x 5 bg colors x 5 shape colors = 125 combinations
 // Japanese flag (white bg + red circle) = 1/125 chance
 
+// Circle size 0.3 = radius, diameter 0.6 = 3/5 of flag height (official Japan ratio)
 const SHAPES = [
   { type: 0, name: '円',   size: 0.30 },
-  { type: 1, name: '星',   size: 0.30 },
-  { type: 2, name: '三日月', size: 0.30 },
-  { type: 3, name: '十字', size: 0.28 },
-  { type: 4, name: '三角', size: 0.32 },
+  { type: 1, name: '星',   size: 0.35 },
+  { type: 2, name: '三日月', size: 0.35 },
+  { type: 3, name: '十字', size: 0.30 },
+  { type: 4, name: '三角', size: 0.38 },
 ];
 
 const BG_COLORS = [
@@ -60,7 +62,9 @@ const SETTLE_SLOW_START = 0.7; // start slowing at 70% through
 
 // Showing state (pause before explosion)
 let showTimer = 0;
-const SHOW_DURATION = 1.0;
+let showDuration = 1.0;
+const SHOW_DURATION_NORMAL = 1.0;
+const SHOW_DURATION_KIMIGAYO = 3.0;
 
 showFlagInfo(currentFlag);
 
@@ -81,6 +85,12 @@ function generateFlag() {
     shapeName: shape.name,
     shapeColorName: sc.name,
   };
+}
+
+function isJapaneseFlag(flag) {
+  return flag.shapeType === 0 &&
+    flag.bgColor[0] === 1.0 && flag.bgColor[1] === 1.0 && flag.bgColor[2] === 1.0 &&
+    flag.shapeColor[0] === 0.8 && flag.shapeColor[1] === 0.0 && flag.shapeColor[2] === 0.0;
 }
 
 function showFlagInfo(flag) {
@@ -144,6 +154,12 @@ function render(now) {
     if (spinElapsed >= spinDuration) {
       state = 'showing';
       showTimer = 0;
+      if (isJapaneseFlag(currentFlag)) {
+        showDuration = SHOW_DURATION_KIMIGAYO;
+        playKimigayo();
+      } else {
+        showDuration = SHOW_DURATION_NORMAL;
+      }
     }
 
   } else if (state === 'showing') {
@@ -151,7 +167,7 @@ function render(now) {
     showTimer += dt;
     flagRenderer.render(currentFlag, 1.0);
 
-    if (showTimer >= SHOW_DURATION) {
+    if (showTimer >= showDuration) {
       state = 'exploding';
       playExplosionSound();
       particleSystem.emit(currentFlag, canvas.width, canvas.height);
