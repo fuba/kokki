@@ -154,7 +154,7 @@ function lzwEncode(indexStream, minCodeSize) {
       if (nextCode <= 4095) {
         table.set(key, nextCode);
         nextCode++;
-        if (nextCode >= (1 << codeSize) && codeSize < 12) {
+        if (nextCode > (1 << codeSize) && codeSize < 12) {
           codeSize++;
         }
       } else {
