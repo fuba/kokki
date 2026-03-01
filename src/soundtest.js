@@ -6,6 +6,7 @@ import { lang } from './i18n.js';
 
 const TRACKS = [
   { id: 'Japan',       ja: '日本',           en: 'Japan',       desc: '君が代',           descEn: 'Kimigayo',           pd: true },
+  { id: 'Japan_b',     ja: '日本（変調）',    en: 'Japan (broken)', desc: '君が代（壊）',   descEn: 'Kimigayo (broken)',  pd: true },
   { id: 'Bangladesh',  ja: 'バングラデシュ',  en: 'Bangladesh',  desc: 'আমার সোনার বাংলা', descEn: 'Amar Sonar Bangla',  pd: true },
   { id: 'Vietnam',     ja: 'ベトナム',        en: 'Vietnam',     desc: 'ベトナム音楽風',     descEn: 'Vietnamese style',   pd: false },
   { id: 'Switzerland', ja: 'スイス',          en: 'Switzerland', desc: 'スイスの賛歌',       descEn: 'Swiss Psalm',        pd: true },
@@ -51,6 +52,8 @@ function toggleTrack(id) {
 
   if (id === 'Japan') {
     playKimigayo();
+  } else if (id === 'Japan_b') {
+    playKimigayo(true);
   } else {
     const dur = playAnthem(id);
     if (dur > 0) {
