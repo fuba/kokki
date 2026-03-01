@@ -44,7 +44,7 @@ if (!gl) {
 const flagRenderer = new FlagRenderer(gl);
 const particleSystem = new ParticleSystem(gl);
 
-// State machine: idle -> spinning -> settling -> exploding -> fading_in -> idle
+// State machine: idle -> spinning -> showing (1s pause) -> exploding -> fading_in -> idle
 let state = 'idle';
 let currentFlag = generateFlag();
 let fadeInAlpha = 1.0;
@@ -57,6 +57,10 @@ let spinDuration = 0;
 const SPIN_MIN_DURATION = 1.5;
 const SPIN_MAX_DURATION = 2.5;
 const SETTLE_SLOW_START = 0.7; // start slowing at 70% through
+
+// Showing state (pause before explosion)
+let showTimer = 0;
+const SHOW_DURATION = 1.0;
 
 showFlagInfo(currentFlag);
 
@@ -136,8 +140,18 @@ function render(now) {
 
     flagRenderer.render(currentFlag, 1.0);
 
-    // Transition to exploding when spin is done
+    // Transition to showing when spin is done
     if (spinElapsed >= spinDuration) {
+      state = 'showing';
+      showTimer = 0;
+    }
+
+  } else if (state === 'showing') {
+    // Hold the final flag for a moment before exploding
+    showTimer += dt;
+    flagRenderer.render(currentFlag, 1.0);
+
+    if (showTimer >= SHOW_DURATION) {
       state = 'exploding';
       playExplosionSound();
       particleSystem.emit(currentFlag, canvas.width, canvas.height);
