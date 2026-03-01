@@ -105,6 +105,98 @@
             cursor: not-allowed;
         }
 
+        /* Result dialog */
+        #result-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        #result-overlay.visible {
+            display: flex;
+        }
+        #result-dialog {
+            background: #f5f0e8;
+            border: 2px solid #1a1a1a;
+            padding: 0;
+            max-width: 420px;
+            width: 90%;
+        }
+        #result-header {
+            background: #1a1a1a;
+            color: #f5f0e8;
+            text-align: center;
+            padding: 8px 16px;
+            font-size: 0.85em;
+            letter-spacing: 0.3em;
+        }
+        #result-body {
+            padding: 20px 24px;
+        }
+        #result-title {
+            text-align: center;
+            font-size: 1.3em;
+            letter-spacing: 0.2em;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #999;
+        }
+        #result-details {
+            font-size: 0.9em;
+            line-height: 2;
+            margin-bottom: 16px;
+        }
+        #result-details dt {
+            display: inline;
+            color: #666;
+        }
+        #result-details dt::after {
+            content: "：";
+        }
+        #result-details dd {
+            display: inline;
+            margin: 0;
+        }
+        #result-details dd::after {
+            content: "";
+            display: block;
+        }
+        #result-warning {
+            display: none;
+            margin-top: 12px;
+            padding: 12px;
+            border: 1px solid #8b0000;
+            background: #fff8f8;
+            font-size: 0.85em;
+            line-height: 1.8;
+        }
+        #result-warning-title {
+            color: #8b0000;
+            font-weight: bold;
+            letter-spacing: 0.15em;
+            margin-bottom: 4px;
+        }
+        #result-close-btn {
+            display: block;
+            margin: 0 auto;
+            padding: 8px 32px;
+            font-family: "游明朝", "Yu Mincho", "Hiragino Mincho ProN", "MS PMincho", serif;
+            font-size: 0.95em;
+            letter-spacing: 0.3em;
+            border: 1px solid #1a1a1a;
+            background: #fff;
+            color: #1a1a1a;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        #result-close-btn:hover {
+            background: #1a1a1a;
+            color: #f5f0e8;
+        }
+
         /* Footer */
         #footer {
             margin-top: 30px;
@@ -131,6 +223,26 @@
         <p id="info"></p>
         <button id="explode-btn">損壊</button>
     </div>
+    <!-- Result dialog -->
+    <div id="result-overlay">
+        <div id="result-dialog">
+            <div id="result-header">損壊結果報告書</div>
+            <div id="result-body">
+                <div id="result-title"></div>
+                <dl id="result-details">
+                    <dt>図形</dt><dd id="rd-shape"></dd>
+                    <dt>地色</dt><dd id="rd-bg"></dd>
+                    <dt>紋色</dt><dd id="rd-sc"></dd>
+                </dl>
+                <div id="result-warning">
+                    <div id="result-warning-title"></div>
+                    <div id="result-warning-body"></div>
+                </div>
+                <button id="result-close-btn">確認</button>
+            </div>
+        </div>
+    </div>
+
     <div id="footer">本紙は無作為に生成された旗章であり、既存の国旗との一致は偶然によるものである</div>
     <script type="module" src="src/main.js"></script>
 </body>

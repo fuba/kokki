@@ -36,6 +36,15 @@ const SHAPE_COLORS = [
 const canvas = document.getElementById('canvas');
 const btn = document.getElementById('explode-btn');
 const info = document.getElementById('info');
+const resultOverlay = document.getElementById('result-overlay');
+const resultTitle = document.getElementById('result-title');
+const rdShape = document.getElementById('rd-shape');
+const rdBg = document.getElementById('rd-bg');
+const rdSc = document.getElementById('rd-sc');
+const resultWarning = document.getElementById('result-warning');
+const resultWarningTitle = document.getElementById('result-warning-title');
+const resultWarningBody = document.getElementById('result-warning-body');
+const resultCloseBtn = document.getElementById('result-close-btn');
 
 const gl = canvas.getContext('webgl', { alpha: false, antialias: true });
 if (!gl) {
@@ -46,9 +55,10 @@ if (!gl) {
 const flagRenderer = new FlagRenderer(gl);
 const particleSystem = new ParticleSystem(gl);
 
-// State machine: idle -> spinning -> showing (1s pause) -> exploding -> fading_in -> idle
+// State machine: idle -> spinning -> showing -> exploding -> result -> (click) -> fading_in -> idle
 let state = 'idle';
 let currentFlag = generateFlag();
+let explodedFlag = null; // remember what was destroyed for result dialog
 let fadeInAlpha = 1.0;
 
 // Roulette state
@@ -96,6 +106,53 @@ function isJapaneseFlag(flag) {
 function showFlagInfo(flag) {
   info.textContent = `${flag.shapeName}｜地：${flag.bgName}｜紋：${flag.shapeColorName}`;
 }
+
+// Police stations to suggest for turning yourself in
+const POLICE_STATIONS = [
+  '警視庁 丸の内警察署（東京都千代田区丸の内一丁目1番1号）',
+  '警視庁 麹町警察署（東京都千代田区麹町五丁目1番6号）',
+  '大阪府警察 曽根崎警察署（大阪市北区曽根崎二丁目16番14号）',
+  '神奈川県警察 加賀町警察署（横浜市中区山下町203番地）',
+  '愛知県警察 中警察署（名古屋市中区丸の内三丁目27番26号）',
+  '京都府警察 五条警察署（京都市下京区大宮通松原下ル上五条町394番地）',
+  '福岡県警察 博多警察署（福岡市博多区博多駅前一丁目1番1号）',
+  '北海道警察 札幌中央警察署（札幌市中央区北一条西五丁目11番地）',
+];
+
+function showResultDialog(flag) {
+  const japan = isJapaneseFlag(flag);
+
+  resultTitle.textContent = japan ? '日本国旗を損壊しました' : '旗章を損壊しました';
+  rdShape.textContent = flag.shapeName;
+  rdBg.textContent = flag.bgName;
+  rdSc.textContent = flag.shapeColorName;
+
+  if (japan) {
+    resultWarning.style.display = 'block';
+    resultWarningTitle.textContent = '刑法第92条　外国国章損壊等に該当する可能性';
+    resultWarningBody.innerHTML =
+      '本件は日本国旗の損壊に該当する可能性があります。<br>' +
+      '速やかに自首されることをお勧めいたします。<br><br>' +
+      '<strong>自首先：</strong><br>' +
+      POLICE_STATIONS[Math.floor(Math.random() * POLICE_STATIONS.length)];
+  } else {
+    resultWarning.style.display = 'none';
+  }
+
+  resultOverlay.classList.add('visible');
+}
+
+function hideResultDialog() {
+  resultOverlay.classList.remove('visible');
+  // Proceed to fade in the next flag
+  state = 'fading_in';
+  currentFlag = generateFlag();
+  showFlagInfo(currentFlag);
+  fadeInAlpha = 0;
+  btn.disabled = false;
+}
+
+resultCloseBtn.addEventListener('click', hideResultDialog);
 
 function startSpin() {
   if (state !== 'idle') return;
@@ -169,6 +226,7 @@ function render(now) {
 
     if (showTimer >= showDuration) {
       state = 'exploding';
+      explodedFlag = currentFlag;
       playExplosionSound();
       particleSystem.emit(currentFlag, canvas.width, canvas.height);
     }
@@ -178,10 +236,8 @@ function render(now) {
     particleSystem.render();
 
     if (particleSystem.isDead()) {
-      state = 'fading_in';
-      currentFlag = generateFlag();
-      showFlagInfo(currentFlag);
-      fadeInAlpha = 0;
+      state = 'result';
+      showResultDialog(explodedFlag);
     }
 
   } else if (state === 'fading_in') {
