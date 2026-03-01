@@ -100,17 +100,19 @@ function generateFlag() {
   };
 }
 
-function isJapaneseFlag(flag) {
-  return flag.shapeType === 0 &&
-    flag.bgColor[0] === 1.0 && flag.bgColor[1] === 1.0 && flag.bgColor[2] === 1.0 &&
-    flag.shapeColor[0] === 0.8 && flag.shapeColor[1] === 0.0 && flag.shapeColor[2] === 0.0;
-}
+// Known real-world flags that can appear from the 5x5x5 palette
+const KNOWN_FLAGS = [
+  { bg: '白', sc: '赤', shape: '円',   country: '日本',         japan: true },
+  { bg: '緑', sc: '赤', shape: '円',   country: 'バングラデシュ' },
+  { bg: '青', sc: '黄', shape: '円',   country: 'パラオ' },
+  { bg: '赤', sc: '黄', shape: '星',   country: 'ベトナム' },
+  { bg: '青', sc: '白', shape: '星',   country: 'ソマリア' },
+  { bg: '赤', sc: '白', shape: '十字', country: 'スイス' },
+  { bg: '赤', sc: '白', shape: '三日月', country: 'トルコ' },
+  { bg: '緑', sc: '白', shape: '三日月', country: 'パキスタン' },
+  { bg: '白', sc: '赤', shape: '三日月', country: 'チュニジア' },
+];
 
-function showFlagInfo(flag) {
-  info.textContent = `${flag.shapeName}｜地：${flag.bgName}｜紋：${flag.shapeColorName}`;
-}
-
-// Police stations to suggest for turning yourself in
 const POLICE_STATIONS = [
   '警視庁 丸の内警察署（東京都千代田区丸の内一丁目1番1号）',
   '警視庁 麹町警察署（東京都千代田区麹町五丁目1番6号）',
@@ -122,24 +124,44 @@ const POLICE_STATIONS = [
   '北海道警察 札幌中央警察署（札幌市中央区北一条西五丁目11番地）',
 ];
 
+function matchFlag(flag) {
+  return KNOWN_FLAGS.find(
+    (k) => k.bg === flag.bgName && k.sc === flag.shapeColorName && k.shape === flag.shapeName
+  ) || null;
+}
+
+function showFlagInfo(flag) {
+  info.textContent = `${flag.shapeName}｜地：${flag.bgName}｜紋：${flag.shapeColorName}`;
+}
+
 function showResultDialog(flag) {
-  const japan = isJapaneseFlag(flag);
+  const match = matchFlag(flag);
 
   resultFlagImg.src = capturedFlagImage;
-  resultTitle.textContent = japan ? '日本国旗を損壊しました' : '旗章を損壊しました';
   rdShape.textContent = flag.shapeName;
   rdBg.textContent = flag.bgName;
   rdSc.textContent = flag.shapeColorName;
 
-  if (japan) {
+  if (match) {
+    resultTitle.textContent = `${match.country}の国旗を損壊しました`;
     resultWarning.style.display = 'block';
-    resultWarningTitle.textContent = '刑法第92条　外国国章損壊等に該当する可能性';
-    resultWarningBody.innerHTML =
-      '本件は日本国旗の損壊に該当する可能性があります。<br>' +
-      '速やかに自首されることをお勧めいたします。<br><br>' +
-      '<strong>自首先：</strong><br>' +
-      POLICE_STATIONS[Math.floor(Math.random() * POLICE_STATIONS.length)];
+
+    if (match.japan) {
+      resultWarningTitle.textContent = '刑法第92条　外国国章損壊等に該当する可能性';
+      resultWarningBody.innerHTML =
+        '本件は日本国旗の損壊に該当する可能性があります。<br>' +
+        '速やかに自首されることをお勧めいたします。<br><br>' +
+        '<strong>自首先：</strong><br>' +
+        POLICE_STATIONS[Math.floor(Math.random() * POLICE_STATIONS.length)];
+    } else {
+      resultWarningTitle.textContent = '刑法第92条　外国国章損壊等';
+      resultWarningBody.innerHTML =
+        `本件は${match.country}の国旗に類似した旗章の損壊に該当する可能性があります。<br>` +
+        '外国に対して侮辱を加える目的でその国の国旗を損壊した場合、' +
+        '二年以下の懲役又は二十万円以下の罰金に処せられることがあります。';
+    }
   } else {
+    resultTitle.textContent = '旗章を損壊しました';
     resultWarning.style.display = 'none';
   }
 
@@ -215,7 +237,8 @@ function render(now) {
     if (spinElapsed >= spinDuration) {
       state = 'showing';
       showTimer = 0;
-      if (isJapaneseFlag(currentFlag)) {
+      const match = matchFlag(currentFlag);
+      if (match && match.japan) {
         showDuration = SHOW_DURATION_KIMIGAYO;
         playKimigayo();
       } else {
