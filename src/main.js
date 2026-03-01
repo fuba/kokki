@@ -9,12 +9,13 @@ import { playKimigayo } from './kimigayo.js';
 // Japanese flag (white bg + red circle) = 1/125 chance
 
 // Circle size 0.3 = radius, diameter 0.6 = 3/5 of flag height (official Japan ratio)
+// Other shapes scaled up so they fill a similar visual area
 const SHAPES = [
   { type: 0, name: '円',   size: 0.30 },
-  { type: 1, name: '星',   size: 0.35 },
-  { type: 2, name: '三日月', size: 0.35 },
-  { type: 3, name: '十字', size: 0.30 },
-  { type: 4, name: '三角', size: 0.38 },
+  { type: 1, name: '星',   size: 0.45 },
+  { type: 2, name: '三日月', size: 0.40 },
+  { type: 3, name: '十字', size: 0.42 },
+  { type: 4, name: '三角', size: 0.50 },
 ];
 
 const BG_COLORS = [
@@ -45,8 +46,9 @@ const resultWarning = document.getElementById('result-warning');
 const resultWarningTitle = document.getElementById('result-warning-title');
 const resultWarningBody = document.getElementById('result-warning-body');
 const resultCloseBtn = document.getElementById('result-close-btn');
+const resultFlagImg = document.getElementById('result-flag');
 
-const gl = canvas.getContext('webgl', { alpha: false, antialias: true });
+const gl = canvas.getContext('webgl', { alpha: false, antialias: true, preserveDrawingBuffer: true });
 if (!gl) {
   document.body.innerHTML = '<h2>WebGL非対応</h2>';
   throw new Error('WebGL not supported');
@@ -59,6 +61,7 @@ const particleSystem = new ParticleSystem(gl);
 let state = 'idle';
 let currentFlag = generateFlag();
 let explodedFlag = null; // remember what was destroyed for result dialog
+let capturedFlagImage = null; // data URL of the flag before explosion
 let fadeInAlpha = 1.0;
 
 // Roulette state
@@ -122,6 +125,7 @@ const POLICE_STATIONS = [
 function showResultDialog(flag) {
   const japan = isJapaneseFlag(flag);
 
+  resultFlagImg.src = capturedFlagImage;
   resultTitle.textContent = japan ? '日本国旗を損壊しました' : '旗章を損壊しました';
   rdShape.textContent = flag.shapeName;
   rdBg.textContent = flag.bgName;
@@ -225,6 +229,8 @@ function render(now) {
     flagRenderer.render(currentFlag, 1.0);
 
     if (showTimer >= showDuration) {
+      // Capture the flag image before destroying it
+      capturedFlagImage = canvas.toDataURL('image/png');
       state = 'exploding';
       explodedFlag = currentFlag;
       playExplosionSound();
