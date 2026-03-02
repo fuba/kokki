@@ -35,7 +35,7 @@ const ja = {
     '<strong>同条第2項</strong><br>' +
     '前項の罪は、外国政府の請求がなければ公訴を提起することができない。',
   shareText: '国旗を生成したら損壊されました',
-  shareTextCountry: (c) => `${c}のような国旗を生成したら損壊されて刑法第92条に抵触しました`,
+  shareTextCountry: (c) => `${c}のような国旗を生成しました。かっこいいですね`,
   shareTextJapan: '日本国旗を生成したら損壊されました。皆さんさようなら',
   shareTextAsahi: '旭日旗を生成したら損壊されました。軍艦行進曲が鳴り響く中で…',
   infoFormat: (shape, bg, sc) => `${shape}｜地：${bg}｜紋：${sc}`,
@@ -84,7 +84,7 @@ const en = {
     'The crime prescribed under the preceding paragraph shall not be prosecuted ' +
     'without a request from the government of the foreign state.',
   shareText: 'I tried to generate a flag but it got destroyed.',
-  shareTextCountry: (c) => `I generated a ${c}-ish flag and it got destroyed. Penal Code Art. 92 violated.`,
+  shareTextCountry: (c) => `I generated a ${c}-ish flag. Pretty cool, right?`,
   shareTextJapan: "I generated the Japanese flag and it got destroyed. Goodbye everyone.",
   shareTextAsahi: "I generated the Rising Sun Flag and it got destroyed. The Gunkan March played as it happened...",
   infoFormat: (shape, bg, sc) => `${shape} | bg: ${bg} | emblem: ${sc}`,
